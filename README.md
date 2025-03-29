@@ -1,5 +1,5 @@
 ## Final Project for MEC 733
-In collaboration with Jackson Potter and 
+In collaboration with Jackson Potter and Ivan Lau
 ### Objective
 Program a robot car to follow a path and solve a maze. The car is the ELEGOO UNO R3 Project Smart Robot Car Kit V4 with UNO R3.
 
