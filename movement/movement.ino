@@ -85,16 +85,18 @@ void photosensor() {
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
 
-
+  bool center = center_value >= 800 && center_value <= 1000;
+  bool right = right_value >= 800 && right_value <= 1000;
+  bool left = left_value >= 800 && left_value <= 1000;
 
   // Line-following logic
-  if (center_value >= 800 && center_value <= 1000) {  
+  if (center) {  
     forward();
-  } else if (right_value >= 800 && right_value <= 1000) {  
-    turn_left();
-  } else if (left_value >= 800 && left_value <= 1000) {
+  } else if (right) {  
     turn_right();
-  } else {
+  } else if (left) {
+    turn_left();
+  } else if (!center && !right && !left) {
     stop();
   }
 
