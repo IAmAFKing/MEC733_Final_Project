@@ -35,10 +35,11 @@ void setup() {
 }
 
 void loop() {
-}
+  bool end_line = false;
 
-int main (void) {
-  forward();
+  while (!end_line) {
+    end_line = photosensor();
+  }
 }
 
 void forward() {
