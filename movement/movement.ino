@@ -117,6 +117,9 @@ bool photosensor() {
     turn_left(63);
   } else if (!center && !right && !left) { //search mode
     rotate_left();
+    delay(250);
+    rotate_right();
+    delay(250);
   }
 
   delay(10);
