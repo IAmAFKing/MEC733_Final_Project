@@ -40,6 +40,9 @@ void loop() {
   while (!end_line) {
     end_line = photosensor();
   }
+
+  while (true) {
+  }
 }
 
 void forward() {
@@ -91,6 +94,7 @@ bool photosensor() {
 
   bool right_side = false;
   bool left_side = false;
+  bool center = false;
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -98,28 +102,30 @@ bool photosensor() {
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
   Serial.println(right_value);
+  delay(1000);
 
-  /* // Line-following logic
-  stop();
-  //turn left if right see black
+  // Line-following logic
   if (right_value >= 800 && right_value <= 1000) {  
     right_side = true;
   }
-  //turn right if left see black
   if (left_value >= 800 && left_value <= 1000) {
     left_side = true;
+  }
+  if (center_value >= 800 && center_value <= 1000) {
+    center = true;
   }
 
   if (right_side && left_side) {
     stop();
     return true;
-  }
-  else if (right_side) {
+  } else if (right_side) {
     turn_right();
   } else if (left_side) {
     turn_left();
-  } else {
+  } else if (center) {
     forward();
+  } else {
+    stop();
   }
-  return false; */
+  return false;
 }
