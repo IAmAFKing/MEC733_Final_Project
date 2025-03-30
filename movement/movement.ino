@@ -38,9 +38,6 @@ void loop() {
   bool end_line = photosensor();
 }
 
-int main(void) {
-}
-
 void forward() {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
