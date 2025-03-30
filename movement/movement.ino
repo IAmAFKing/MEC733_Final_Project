@@ -92,7 +92,14 @@ bool photosensor() {
   bool right_side = false;
   bool left_side = false;
 
-  // Line-following logic
+  Serial.print("Left sensor: ");
+  Serial.print(left_value);
+  Serial.print("\t center sensor: ");
+  Serial.print(center_value);
+  Serial.print("\t right sensor: ");
+  Serial.println(right_value);
+
+  /* // Line-following logic
   stop();
   //turn left if right see black
   if (right_value >= 800 && right_value <= 1000) {  
@@ -114,5 +121,5 @@ bool photosensor() {
   } else {
     forward();
   }
-  return false;
+  return false; */
 }
