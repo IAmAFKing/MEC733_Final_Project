@@ -1,0 +1,4 @@
+- [ ] turn speed to forward speed ratio for turns following line
+    - the sharper the turn, the slower the car needs to be or the sharper the turn needs to be
+    - if the turn is too sharp, will it veer off course?
+    - what is the fastest forward speed
