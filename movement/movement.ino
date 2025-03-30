@@ -35,14 +35,16 @@ void setup() {
 }
 
 void loop() {
-}
-
-int main(void) {
   bool end_line = false;
 
   while (!end_line) {
     end_line = photosensor();
   }
+  Serial.print("End reached");
+  Serial.flush();
+}
+
+int main(void) {
 }
 
 void forward() {
