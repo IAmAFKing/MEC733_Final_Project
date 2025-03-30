@@ -1,8 +1,8 @@
 // Motor driver pins
-#define ENA 6  // Left motor speed control
-#define ENB 5  // Right motor speed control
-#define IN1 7  // Right motor forward
-#define IN2 8  // Right motor backward
+#define ENA 5  // Right motor speed control
+#define ENB 6  // Left motor speed control
+#define IN1 7  // Right motor
+#define IN2 8  // Left motor
 
 #define STBY 3 // Standby pin for enabling motor driver
 
@@ -12,7 +12,7 @@
 #define LEFT_SENSOR A2
 
 // Default speed of the motors (0-255)
-int motor_speed = 128;
+int motor_speed = 127;
 
 void setup() {
   // Set motor control pins as outputs
@@ -73,17 +73,17 @@ void rotate_right() {
   digitalWrite(IN2, HIGH);
 }
 
-void turn_left() {
-  analogWrite(ENA, 0);
-  analogWrite(ENB, motor_speed);
+void turn_left(int motor2) {
+  analogWrite(ENA, motor_speed);
+  analogWrite(ENB, motor2);
   digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, HIGH);
+  digitalWrite(IN2, LOW);
 }
 
-void turn_right() {
-  analogWrite(ENA, motor_speed);
-  analogWrite(ENB, 0);
-  digitalWrite(IN1, HIGH);
+void turn_right(int motor2) {
+  analogWrite(ENA, motor2);
+  analogWrite(ENB, motor_speed);
+  digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
 }
 
@@ -106,15 +106,15 @@ bool photosensor() {
   // Line-following logic
   if (center) {
     if (right) {
-      turn_right();
+      turn_right(0);
     } else if (left) {
-      turn_left();
+      turn_left(0);
     }
     forward();
-  } else if (right) {  
-    rotate_right();
+  } else if (right) {
+    turn_right(31);
   } else if (left) {
-    rotate_left();
+    turn_left(31);
   } else if (!center && !right && !left) {
     stop();
   }
