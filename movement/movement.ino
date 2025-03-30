@@ -1,6 +1,6 @@
 // Motor driver pins
-#define ENA 5  // Left motor speed control
-#define ENB 6  // Right motor speed control
+#define ENA 6  // Left motor speed control
+#define ENB 5  // Right motor speed control
 #define IN1 7  // Right motor forward
 #define IN2 8  // Right motor backward
 
