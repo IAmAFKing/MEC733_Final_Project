@@ -112,9 +112,9 @@ bool photosensor() {
     }
     forward();
   } else if (right) {
-    turn_right(31);
+    turn_right(63);
   } else if (left) {
-    turn_left(31);
+    turn_left(63);
   } else if (!center && !right && !left) {
     stop();
   }
