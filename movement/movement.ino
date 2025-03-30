@@ -1,8 +1,8 @@
 // Motor driver pins
 #define ENA 5  // Left motor speed control
 #define ENB 6  // Right motor speed control
-#define IN1 7  // Right motor forward
-#define IN2 8  // Right motor backward
+#define IN1 7  // Right motors
+#define IN2 8  // Left motors
 
 #define STBY 3 // Standby pin for enabling motor driver
 
@@ -11,7 +11,7 @@
 #define CENTER_SENSOR A1
 #define LEFT_SENSOR A2
 
-// Speed of the motors (0-255)
+// Default speed of the motors (0-255)
 int motor_speed = 70;
 
 void setup() {
@@ -35,7 +35,14 @@ void setup() {
 }
 
 void loop() {
-  photosensor();
+}
+
+int main(void) {
+  bool line_end = false;
+
+  while (!line_end) {
+    photosensor();
+  }
 }
 
 void forward() {
@@ -85,16 +92,18 @@ void photosensor() {
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
 
-
-
   // Line-following logic
-  if (center_value >= 800 && center_value <= 1000) {  
+  //Go forward as long as the center sees black, even if the others also see black
+  if (center_value >= 800 && center_value <= 1000) {
     forward();
-  } else if (right_value >= 800 && right_value <= 1000) {  
+  }
+  //turn left if right see black
+  if (right_value >= 800 && right_value <= 1000) {  
     turn_left();
-  } else if (left_value >= 800 && left_value <= 1000) {
+  }
+  //turn right if left see black
+  if (left_value >= 800 && left_value <= 1000) {
     turn_right();
-
   }
 
 }
