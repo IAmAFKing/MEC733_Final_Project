@@ -127,5 +127,6 @@ bool photosensor() {
   } else {
     stop();
   }
+  delay(10);
   return false;
 }
