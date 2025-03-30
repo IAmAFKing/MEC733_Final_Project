@@ -105,19 +105,18 @@ bool photosensor() {
   delay(1000);
 
   // Line-following logic
-  if (right_value >= 800 && right_value <= 1000) {  
+  if (right_value >= 850 && right_value <= 950) {  
     right_side = true;
   }
-  if (left_value >= 800 && left_value <= 1000) {
+  if (left_value >= 850 && left_value <= 950) {
     left_side = true;
   }
-  if (center_value >= 800 && center_value <= 1000) {
+  if (center_value >= 850 && center_value <= 950) {
     center = true;
   }
 
   if (right_side && left_side) {
-    stop();
-    return true;
+    // stop();
   } else if (right_side) {
     turn_right();
   } else if (left_side) {
