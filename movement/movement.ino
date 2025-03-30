@@ -38,10 +38,10 @@ void loop() {
 }
 
 int main(void) {
-  bool line_end = false;
+  bool end_line = false;
 
-  while (!line_end) {
-    photosensor();
+  while (!end_line) {
+    end_line = photosensor();
   }
 }
 
@@ -87,23 +87,34 @@ void turn_right() {
   digitalWrite(IN2, HIGH);
 }
 
-void photosensor() {
+bool photosensor() {
   int right_value = analogRead(RIGHT_SENSOR);
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
 
+  bool right_side = false;
+  bool left_side = false;
+
   // Line-following logic
-  //Go forward as long as the center sees black, even if the others also see black
-  if (center_value >= 800 && center_value <= 1000) {
-    forward();
-  }
   //turn left if right see black
   if (right_value >= 800 && right_value <= 1000) {  
-    turn_left();
+    right_side = true;
   }
   //turn right if left see black
   if (left_value >= 800 && left_value <= 1000) {
-    turn_right();
+    left_side = true;
   }
 
+  if (right_side && left_side) {
+    stop();
+    return true;
+  }
+  else if (right_side) {
+    turn_right();
+  } else if (left_side) {
+    turn_left();
+  } else {
+    forward();
+  }
+  return false;
 }
