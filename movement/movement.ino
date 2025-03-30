@@ -36,17 +36,17 @@ void setup() {
 
 void loop() {
   forward();
-  delay(1000);
-  stop();
-  delay(1000);
-  turn_left();
-  delay(1000);
-  turn_right();
-  delay(1000);
-  rotate_left();
-  delay(1000);
-  rotate_right();
-  delay(10000);
+  // delay(1000);
+  // stop();
+  // delay(1000);
+  // turn_left();
+  // delay(1000);
+  // turn_right();
+  // delay(1000);
+  // rotate_left();
+  // delay(1000);
+  // rotate_right();
+  // delay(10000);
 }
 
 void forward() {
