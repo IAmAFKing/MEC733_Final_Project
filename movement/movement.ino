@@ -93,6 +93,7 @@ bool photosensor() {
   bool left_side = false;
 
   // Line-following logic
+  stop();
   //turn left if right see black
   if (right_value >= 800 && right_value <= 1000) {  
     right_side = true;
