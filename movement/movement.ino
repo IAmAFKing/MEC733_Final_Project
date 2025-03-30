@@ -104,12 +104,17 @@ bool photosensor() {
   Serial.println(right_value);
 
   // Line-following logic
-  if (center) {  
+  if (center) {
+    if (right) {
+      turn_right();
+    } else if (left) {
+      turn_left();
+    }
     forward();
   } else if (right) {  
-    turn_right();
+    rotate_right();
   } else if (left) {
-    turn_left();
+    rotate_left();
   } else if (!center && !right && !left) {
     stop();
   }
