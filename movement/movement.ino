@@ -106,9 +106,9 @@ bool photosensor() {
   // Line-following logic
   if (center) {
     if (right) {
-      turn_right(0);
+      turn_right(15);
     } else if (left) {
-      turn_left(0);
+      turn_left(15);
     }
     forward();
   } else if (right) {
