@@ -94,7 +94,8 @@ void photosensor() {
     turn_left();
   } else if (left_value >= 800 && left_value <= 1000) {
     turn_right();
-
+  } else {
+    stop();
   }
 
 }
