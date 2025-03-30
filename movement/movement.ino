@@ -12,7 +12,7 @@
 #define LEFT_SENSOR A2
 
 // Default speed of the motors (0-255)
-int motor_speed = 70;
+int motor_speed = 100;
 
 void setup() {
   // Set motor control pins as outputs
@@ -35,7 +35,18 @@ void setup() {
 }
 
 void loop() {
-  bool end_line = photosensor();
+  forward();
+  delay(1000);
+  stop();
+  delay(1000);
+  turn_left();
+  delay(1000);
+  turn_right();
+  delay(1000);
+  rotate_left();
+  delay(1000);
+  rotate_right();
+  delay(10000);
 }
 
 void forward() {
