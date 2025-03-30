@@ -12,7 +12,7 @@
 #define LEFT_SENSOR A2
 
 // Default speed of the motors (0-255)
-int motor_speed = 127;
+int motor_speed = 63;
 
 void setup() {
   // Set motor control pins as outputs
