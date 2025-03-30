@@ -1,6 +1,6 @@
 // Motor driver pins
-#define ENA 5  // Left motor speed control
-#define ENB 6  // Right motor speed control
+#define ENA 6  // Left motor speed control
+#define ENB 5  // Right motor speed control
 #define IN1 7  // Right motor forward
 #define IN2 8  // Right motor backward
 
@@ -67,7 +67,7 @@ void rotate_right() {
 }
 
 void turn_left() {
-  analogWrite(ENA, motor_speed - 50);
+  analogWrite(ENA, 0);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
@@ -75,7 +75,7 @@ void turn_left() {
 
 void turn_right() {
   analogWrite(ENA, motor_speed);
-  analogWrite(ENB, motor_speed - 50);
+  analogWrite(ENB, 0);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
 }
@@ -85,16 +85,28 @@ void photosensor() {
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
 
+  bool center = center_value >= 700 && center_value <= 950;
+  bool right = right_value >= 700 && right_value <= 950;
+  bool left = left_value >= 700 && left_value <= 950;
 
+  Serial.print("Left sensor: ");
+  Serial.print(left_value);
+  Serial.print("\t center sensor: ");
+  Serial.print(center_value);
+  Serial.print("\t right sensor: ");
+  Serial.println(right_value);
 
   // Line-following logic
-  if (center_value >= 800 && center_value <= 1000) {  
+  if (center) {  
     forward();
-  } else if (right_value >= 800 && right_value <= 1000) {  
-    turn_left();
-  } else if (left_value >= 800 && left_value <= 1000) {
+  } else if (right) {  
     turn_right();
-
+  } else if (left) {
+    turn_left();
+  } else if (!center && !right && !left) {
+    stop();
   }
+
+  delay(10);
 
 }
