@@ -93,8 +93,8 @@ bool photosensor() {
   int center_value = analogRead(CENTER_SENSOR);
 
   bool center = center_value >= 700 && center_value <= 950;
-  bool right = right_value >= 700 && right_value <= 950;
-  bool left = left_value >= 700 && left_value <= 950;
+  bool right = right_value >= 600 && right_value <= 950;
+  bool left = left_value >= 600 && left_value <= 950;
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -109,17 +109,15 @@ bool photosensor() {
       turn_right(31);
     } else if (left) {
       turn_left(31);
+    } else {
+      forward();
     }
-    forward();
   } else if (right) {
     turn_right(63);
   } else if (left) {
     turn_left(63);
   } else if (!center && !right && !left) { //search mode
-    rotate_left();
-    delay(250);
-    rotate_right();
-    delay(250);
+    stop();
   }
 
   delay(10);
