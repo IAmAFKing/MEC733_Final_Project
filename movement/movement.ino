@@ -106,17 +106,17 @@ bool photosensor() {
   // Line-following logic
   if (center) {
     if (right) {
-      turn_right(15);
+      turn_right(31);
     } else if (left) {
-      turn_left(15);
+      turn_left(31);
     }
     forward();
   } else if (right) {
     turn_right(63);
   } else if (left) {
     turn_left(63);
-  } else if (!center && !right && !left) {
-    stop();
+  } else if (!center && !right && !left) { //search mode
+    rotate_left();
   }
 
   delay(10);
