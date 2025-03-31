@@ -123,9 +123,15 @@ bool photosensor() {
         photosensor();
       }
     }
-    for (int i=0; i<20000; i++) {
+    for (int i=0; i<40000; i++) {
       rotate_right();
       if (right) {
+        photosensor();
+      }
+    }
+    for (int i=0; i<20000; i++) {
+      rotate_left();
+      if (left) {
         photosensor();
       }
     }
