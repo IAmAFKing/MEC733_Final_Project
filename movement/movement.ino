@@ -129,12 +129,12 @@ bool photosensor() {
         photosensor();
       }
     }
-    for (int i=0; i<20000; i++) {
+    /* for (int i=0; i<20000; i++) {
       rotate_left();
       if (left) {
         photosensor();
       }
-    }
+    } */
   }
 
   delay(10);
