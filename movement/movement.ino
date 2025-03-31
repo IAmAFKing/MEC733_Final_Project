@@ -117,18 +117,31 @@ bool photosensor() {
   } else if (left) {
     turn_left(63);
   } else if (!center && !right && !left) { //search mode
+
     for (int i=0; i<20000; i++) {
       rotate_left();
+      left_value = analogRead(LEFT_SENSOR);
+      center_value = analogRead(CENTER_SENSOR);
+  
+      left = left_value >= 600 && left_value <= 950;
+      center = center_value >= 700 && center_value <= 950;
       if (left) {
         photosensor();
       }
     }
     for (int i=0; i<40000; i++) {
       rotate_right();
+      right_value = analogRead(RIGHT_SENSOR);
+      center_value = analogRead(CENTER_SENSOR);
+  
+      right = right_value >= 600 && right_value <= 950;
+      center = center_value >= 700 && center_value <= 950;
       if (right) {
         photosensor();
       }
     }
+    Serial.print("end");
+    stop();
     /* for (int i=0; i<20000; i++) {
       rotate_left();
       if (left) {
