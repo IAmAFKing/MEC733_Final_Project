@@ -41,7 +41,8 @@ void loop() {
     end_line = photosensor();
   }
 
-  Serial.print("done");
+  /* Serial.print("done");
+  Serial.flush(); */
 
   //Stop loop
   while (true) {
@@ -104,19 +105,21 @@ bool photosensor() {
   bool right = right_value >= 600 && right_value <= 950;
   bool left = left_value >= 600 && left_value <= 950;
 
-/*   Serial.print("Left sensor: ");
+  Serial.print("Left sensor: ");
   Serial.print(left_value);
   Serial.print("\t center sensor: ");
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
-  Serial.println(right_value); */
+  Serial.println(right_value);
+  Serial.flush();
 
   // Line-following logic
   // Check to see if the end has been reached
-  if (left && center && right) {
+  /* if (left && center && right) {
+    stop();
     return true;
-  }
-  else if (center) {
+  } */
+  if (center) {
     //Start small adjustment if there is a little left or right error but the center still reads fine
     if (right) {
       turn_right(31);
@@ -134,20 +137,28 @@ bool photosensor() {
   }
   //None of the sensors see the black
   else if (!center && !right && !left) { //search mode
-    //Rotate left a bit and continuously check for the line
-    for (int i=0; i<20000; i++) {
-      rotate_left();
-      if (left) {
-        photosensor();
+      //Rotate left a bit and continuously check for the line
+      for (long i=0; i<20000; i++) {
+        rotate_left();
+        if (left_value >= 600 && left_value <= 950) {
+          photosensor();
+        }
       }
-    }
-    //Rotate to the right side to check
-    for (int i=0; i<40000; i++) {
-      rotate_right();
-      if (right) {
-        photosensor();
+      //Rotate to the right side to check
+      for (long i=0; i<20000; i++) {
+        rotate_right();
+        if (right_value >= 600 && right_value <= 950) {
+          photosensor();
+        }
       }
-    }
+      /* //Rotate left a bit and continuously check for the line
+      for (long i=0; i<20000; i++) {
+        rotate_left();
+        if (left) {
+          photosensor();
+        }
+      } */
+    
   }
   delay(10);
 }
