@@ -35,7 +35,12 @@ void setup() {
 }
 
 void loop() {
-  photosensor();
+  bool end_line=false;
+  while (!end_line) {
+    end_line = photosensor();
+  }
+  while (true) {
+  }
 }
 
 void forward() {
@@ -80,7 +85,7 @@ void turn_right() {
   digitalWrite(IN2, HIGH);
 }
 
-void photosensor() {
+bool photosensor() {
   int right_value = analogRead(RIGHT_SENSOR);
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
