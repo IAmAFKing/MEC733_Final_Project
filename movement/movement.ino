@@ -111,7 +111,6 @@ bool photosensor() {
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
   Serial.println(right_value);
-  Serial.flush();
 
   // Line-following logic
   // Check to see if the end has been reached
