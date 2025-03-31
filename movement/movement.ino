@@ -1,8 +1,8 @@
 // Motor driver pins
-#define ENA 6  // Left motor speed control
-#define ENB 5  // Right motor speed control
-#define IN1 7  // Right motor forward
-#define IN2 8  // Right motor backward
+#define ENA 5  // Right motor speed control
+#define ENB 6  // Left motor speed control
+#define IN1 7  // Right motor
+#define IN2 8  // Left motor
 
 #define STBY 3 // Standby pin for enabling motor driver
 
@@ -12,7 +12,7 @@
 #define LEFT_SENSOR A2
 
 // Speed of the motors (0-255)
-int motor_speed = 70;
+int motor_speed = 63;
 
 void setup() {
   // Set motor control pins as outputs
@@ -50,11 +50,10 @@ void forward() {
   digitalWrite(IN2, HIGH);
 }
 
-void stop() {
+void stop(int time) {
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
+  delay(time);
 }
 
 void rotate_left() {
@@ -71,18 +70,18 @@ void rotate_right() {
   digitalWrite(IN2, HIGH);
 }
 
-void turn_left() {
-  analogWrite(ENA, 0);
+void turn_left(int speed2) {
+  analogWrite(ENA, speed2);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, HIGH);
+  digitalWrite(IN2, LOW);
 }
 
-void turn_right() {
+void turn_right(int speed2) {
   analogWrite(ENA, motor_speed);
-  analogWrite(ENB, 0);
+  analogWrite(ENB, speed2);
   digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, HIGH);
+  digitalWrite(IN2, LOW);
 }
 
 bool photosensor() {
@@ -105,11 +104,11 @@ bool photosensor() {
   if (center) {  
     forward();
   } else if (right) {  
-    turn_right();
+    turn_right(31);
   } else if (left) {
-    turn_left();
+    turn_left(31);
   } else if (!center && !right && !left) {
-    stop();
+    stop(1000);
   }
 
   delay(10);
