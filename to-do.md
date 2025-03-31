@@ -3,4 +3,5 @@
     - if the turn is too sharp, will it veer off course?
     - what is the fastest forward speed
 - [ ] End line condition
+    - Weird bug with it turning when it reaches the end
 - [ ] Servo code
