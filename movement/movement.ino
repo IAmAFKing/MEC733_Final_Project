@@ -35,21 +35,16 @@ void setup() {
 }
 
 void loop() {
-  bool end_line = false;        //condition when the line following segment has been complete
+  bool end_line = false;
 
   while (!end_line) {
     end_line = photosensor();
   }
 
-  /* Serial.print("done");
-  Serial.flush(); */
-
-  //Stop loop
   while (true) {
   }
 }
 
-/* Movement functions */
 void forward() {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
@@ -92,72 +87,50 @@ void turn_right(int motor2) {
   digitalWrite(IN2, HIGH);
 }
 
-/* Line tracking algorithm.
-  Maybe could have split photosensor and line tracking into 2 different functions */
 bool photosensor() {
-  //Read values from photo sensor
   int right_value = analogRead(RIGHT_SENSOR);
   int left_value = analogRead(LEFT_SENSOR);
   int center_value = analogRead(CENTER_SENSOR);
 
-  //Set boolean if sensors are sensing the black line within a range
   bool center = center_value >= 700 && center_value <= 950;
   bool right = right_value >= 600 && right_value <= 950;
   bool left = left_value >= 600 && left_value <= 950;
 
-  Serial.print("Left sensor: ");
+/*   Serial.print("Left sensor: ");
   Serial.print(left_value);
   Serial.print("\t center sensor: ");
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
-  Serial.println(right_value);
+  Serial.println(right_value); */
 
   // Line-following logic
-  // Check to see if the end has been reached
-  /* if (left && center && right) {
-    stop();
-    return true;
-  } */
   if (center) {
-    //Start small adjustment if there is a little left or right error but the center still reads fine
     if (right) {
       turn_right(31);
     } else if (left) {
       turn_left(31);
-    } else {  //go forward if no errors
+    } else {
       forward();
     }
-  }
-  //Make bigger adjustments if center is not on the line
-  else if (right) {
+  } else if (right) {
     turn_right(63);
   } else if (left) {
     turn_left(63);
-  }
-  //None of the sensors see the black
-  else if (!center && !right && !left) { //search mode
-      //Rotate left a bit and continuously check for the line
-      for (long i=0; i<20000; i++) {
-        rotate_left();
-        if (left_value >= 600 && left_value <= 950) {
-          photosensor();
-        }
+  } else if (!center && !right && !left) { //search mode
+    for (int i=0; i<20000; i++) {
+      rotate_left();
+      if (left) {
+        photosensor();
       }
-      //Rotate to the right side to check
-      for (long i=0; i<20000; i++) {
-        rotate_right();
-        if (right_value >= 600 && right_value <= 950) {
-          photosensor();
-        }
+    }
+    for (int i=0; i<20000; i++) {
+      rotate_right();
+      if (right) {
+        photosensor();
       }
-      /* //Rotate left a bit and continuously check for the line
-      for (long i=0; i<20000; i++) {
-        rotate_left();
-        if (left) {
-          photosensor();
-        }
-      } */
-    
+    }
   }
+
   delay(10);
+
 }
