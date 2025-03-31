@@ -39,6 +39,7 @@ void loop() {
   while (!end_line) {
     end_line = photosensor();
   }
+  Serial.println("DONE");
   while (true) {
   }
 }
@@ -101,7 +102,14 @@ bool photosensor() {
   Serial.println(right_value);
 
   // Line-following logic
-  if (center) {  
+  if (!(left && right)) {
+    forward();
+  } else {
+    stop(100);
+    return true;
+  }
+  return false;
+ /*  if (center) {  
     forward();
   } else if (right) {  
     turn_right(31);
@@ -109,7 +117,7 @@ bool photosensor() {
     turn_left(31);
   } else if (!center && !right && !left) {
     stop(1000);
-  }
+  } */
 
   delay(10);
   //some random test
