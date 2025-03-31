@@ -35,11 +35,15 @@ void setup() {
 }
 
 void loop() {
-  bool end_line = false;
+  /* bool end_line = false;
 
   while (!end_line) {
     end_line = photosensor();
-  }
+  } */
+
+  forward();
+  delay(1000);
+  stop();
 
   while (true) {
   }
@@ -55,8 +59,7 @@ void forward() {
 void stop() {
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
+  delay(1000);
 }
 
 void rotate_left() {
@@ -126,10 +129,10 @@ bool photosensor() {
       left = left_value >= 600 && left_value <= 950;
       center = center_value >= 700 && center_value <= 950;
       if (left) {
-        photosensor();
+        stop();
       }
     }
-    for (int i=0; i<40000; i++) {
+    for (int i=0; i<20000; i++) {
       rotate_right();
       right_value = analogRead(RIGHT_SENSOR);
       center_value = analogRead(CENTER_SENSOR);
@@ -140,8 +143,13 @@ bool photosensor() {
         photosensor();
       }
     }
-    Serial.print("end");
+    rotate_left();
+    delay(1000);
     stop();
+    delay(1000);
+    /* Serial.print("end");
+    stop();
+    return true; */
     /* for (int i=0; i<20000; i++) {
       rotate_left();
       if (left) {
@@ -151,5 +159,6 @@ bool photosensor() {
   }
 
   delay(10);
+  return false;
 
 }
