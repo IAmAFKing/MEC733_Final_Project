@@ -99,21 +99,26 @@ bool photosensor() {
   Serial.print(" \t center sensor: ");
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
-  Serial.println(right_value);
+  Serial.print(right_value);
 
   // Line-following logic
   if (!(left && right)) {
     if (center) {
       if (left) {
+        Serial.println("left turn");
         turn_left(31);
       }else if (center && right) {
+        Serial.println("right turn");
         turn_right(31);
       } else {
+        Serial.println("forward");
         forward();
       }
     } else if (left) {
+      Serial.println("left rotate");
       turn_left(47);
     } else if (right) {
+      Serial.println("left rotate");
       turn_right(47);
     } else { //search mode
       stop(100);
