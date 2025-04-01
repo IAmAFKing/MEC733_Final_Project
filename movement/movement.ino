@@ -122,15 +122,23 @@ bool photosensor() {
         check_val();
         if (center) {
           stop(100);
-          return true;    //test quit
+          break;
         }
       }
-      for (int i=0; i<4000; i++) {   //turn right to check for line
-        turn_right(63);
-        check_val();
-        if (center) {
-          stop(100);
-          return true;    //test quit
+      if (!center) {  //turn right to check for line if not on left
+        for (int i=0; i<4000; i++) {
+          turn_right(63);
+          check_val();
+          if (center) {
+            stop(100);
+            break;
+          }
+        }
+      }
+      if (!center) {  //print lost and stop if not on either side
+        stop(1000);
+        Serial.println("lost");
+        while(true){
         }
       }
     }
