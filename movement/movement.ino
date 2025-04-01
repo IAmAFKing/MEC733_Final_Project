@@ -35,7 +35,17 @@ void setup() {
 }
 
 void loop() {
-  turn_left(47);
+  int right_value = analogRead(RIGHT_SENSOR);
+  int left_value = analogRead(LEFT_SENSOR);
+  int center_value = analogRead(CENTER_SENSOR);
+
+  Serial.print("Left sensor: ");
+  Serial.print(left_value);
+  Serial.print("\t center sensor: ");
+  Serial.print(center_value);
+  Serial.print("\t right sensor: ");
+  Serial.println(right_value);
+  delay(1000);
 }
 
 void forward() {
