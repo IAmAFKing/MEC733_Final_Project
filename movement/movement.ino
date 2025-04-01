@@ -35,7 +35,7 @@ void setup() {
 }
 
 void loop() {
-  photosensor();
+  turn_left(47);
 }
 
 void forward() {
@@ -66,8 +66,8 @@ void rotate_right() {
 }
 
 void turn_left(int speed2) {
-  analogWrite(ENA, speed2);
-  analogWrite(ENB, motor_speed);
+  analogWrite(ENA, motor_speed);
+  analogWrite(ENB, speed2);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
 }
