@@ -96,13 +96,7 @@ void turn_right(int speed2) {
 }
 
 bool photosensor() {
-  right_value = analogRead(RIGHT_SENSOR);
-  left_value = analogRead(LEFT_SENSOR);
-  center_value = analogRead(CENTER_SENSOR);
-
-  center = center_value >= 700 && center_value <= 950;
-  right = right_value >= 700 && right_value <= 950;
-  left = left_value >= 700 && left_value <= 950;
+  check_val();
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -114,16 +108,7 @@ bool photosensor() {
   // Line-following logic
   if (!(left && right)) {
     if (center) {
-      if (left) {
-        Serial.println(" left turn");
-        turn_left(0);
-      }else if (center && right) {
-        Serial.println(" right turn");
-        turn_right(0);
-      } else {
-        Serial.println(" forward");
-        forward();
-      }
+      check_error();
     } else if (left) {
       Serial.println(" left rotate");
       turn_left(63);
@@ -132,12 +117,16 @@ bool photosensor() {
       turn_right(63);
     } else { //search mode
       Serial.println(" search");
-      stop(1000);
-      /* for (int i=0; i<1000; i++) {
+      for (int i=0; i<1000; i++) {
         turn_left(63);
-
         check_val();
-      } */
+        if (center) {
+          stop(100);
+          return true;
+        }
+      }
+      forward();
+      delay(1000);
     }
   } else {
     stop(100);
@@ -156,6 +145,25 @@ bool photosensor() {
 
   delay(10);
   //some random test
+}
+
+void check_error()
+{
+  if (left)
+  {
+    Serial.println(" left turn");
+    turn_left(0);
+  }
+  else if (center && right)
+  {
+    Serial.println(" right turn");
+    turn_right(0);
+  }
+  else
+  {
+    Serial.println(" forward");
+    forward();
+  }
 }
 
 void check_val()
