@@ -105,22 +105,23 @@ bool photosensor() {
   if (!(left && right)) {
     if (center) {
       if (left) {
-        Serial.println("left turn");
-        turn_left(31);
+        Serial.println(" left turn");
+        turn_left(0);
       }else if (center && right) {
-        Serial.println("right turn");
-        turn_right(31);
+        Serial.println(" right turn");
+        turn_right(0);
       } else {
-        Serial.println("forward");
+        Serial.println(" forward");
         forward();
       }
     } else if (left) {
-      Serial.println("left rotate");
-      turn_left(47);
+      Serial.println(" left rotate");
+      turn_left(63);
     } else if (right) {
-      Serial.println("left rotate");
-      turn_right(47);
+      Serial.println(" right rotate");
+      turn_right(63);
     } else { //search mode
+      Serial.println(" nothing");
       stop(100);
     }
   } else {
