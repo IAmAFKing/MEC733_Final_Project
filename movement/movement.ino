@@ -117,16 +117,22 @@ bool photosensor() {
       turn_right(63);
     } else { //search mode
       Serial.println(" search");
-      for (int i=0; i<1000; i++) {
+      for (int i=0; i<2000; i++) {    //turn left to check for line
         turn_left(63);
         check_val();
         if (center) {
           stop(100);
-          return true;
+          return true;    //test quit
         }
       }
-      forward();
-      delay(1000);
+      for (int i=0; i<4000; i++) {   //turn right to check for line
+        turn_right(63);
+        check_val();
+        if (center) {
+          stop(100);
+          return true;    //test quit
+        }
+      }
     }
   } else {
     stop(100);
