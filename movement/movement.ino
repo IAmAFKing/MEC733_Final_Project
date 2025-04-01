@@ -96,7 +96,7 @@ bool photosensor() {
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
-  Serial.print("\t center sensor: ");
+  Serial.print(" \t center sensor: ");
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
   Serial.println(right_value);
@@ -112,9 +112,11 @@ bool photosensor() {
         forward();
       }
     } else if (left) {
-      rotate_left();
+      turn_left(47);
     } else if (right) {
-      rotate_right();
+      turn_right(47);
+    } else { //search mode
+      stop(100);
     }
   } else {
     stop(100);
