@@ -1,3 +1,4 @@
+#include "Arduino.h"
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
@@ -13,6 +14,15 @@
 
 // Speed of the motors (0-255)
 int motor_speed = 63;
+
+// Photosensor values
+int right_value;
+int left_value;
+int center_value;
+
+bool center;
+bool right;
+bool left;
 
 void setup() {
   // Set motor control pins as outputs
@@ -86,13 +96,13 @@ void turn_right(int speed2) {
 }
 
 bool photosensor() {
-  int right_value = analogRead(RIGHT_SENSOR);
-  int left_value = analogRead(LEFT_SENSOR);
-  int center_value = analogRead(CENTER_SENSOR);
+  right_value = analogRead(RIGHT_SENSOR);
+  left_value = analogRead(LEFT_SENSOR);
+  center_value = analogRead(CENTER_SENSOR);
 
-  bool center = center_value >= 700 && center_value <= 950;
-  bool right = right_value >= 700 && right_value <= 950;
-  bool left = left_value >= 700 && left_value <= 950;
+  center = center_value >= 700 && center_value <= 950;
+  right = right_value >= 700 && right_value <= 950;
+  left = left_value >= 700 && left_value <= 950;
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -121,8 +131,13 @@ bool photosensor() {
       Serial.println(" right rotate");
       turn_right(63);
     } else { //search mode
-      Serial.println(" nothing");
-      stop(100);
+      Serial.println(" search");
+      stop(1000);
+      /* for (int i=0; i<1000; i++) {
+        turn_left(63);
+
+        check_val();
+      } */
     }
   } else {
     stop(100);
@@ -141,5 +156,15 @@ bool photosensor() {
 
   delay(10);
   //some random test
+}
 
+void check_val()
+{
+  right_value = analogRead(RIGHT_SENSOR);
+  left_value = analogRead(LEFT_SENSOR);
+  center_value = analogRead(CENTER_SENSOR);
+
+  center = center_value >= 700 && center_value <= 950;
+  right = right_value >= 700 && right_value <= 950;
+  left = left_value >= 700 && left_value <= 950;
 }
