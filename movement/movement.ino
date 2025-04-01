@@ -57,7 +57,7 @@ void stop(int time) {
   delay(time);
 }
 
-void rotate_left() {
+/* void rotate_left() {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
@@ -69,20 +69,20 @@ void rotate_right() {
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
-}
+} */
 
 void turn_left(int speed2) {
-  analogWrite(ENA, speed2);
-  analogWrite(ENB, motor_speed);
+  analogWrite(ENA, motor_speed);
+  analogWrite(ENB, speed2);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
 }
 
 void turn_right(int speed2) {
-  analogWrite(ENA, motor_speed);
-  analogWrite(ENB, speed2);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
+  analogWrite(ENA, speed2);
+  analogWrite(ENB, motor_speed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
 }
 
 bool photosensor() {
