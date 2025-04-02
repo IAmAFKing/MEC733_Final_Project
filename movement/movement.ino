@@ -59,16 +59,22 @@ void setup() {
   servo.attach(SRV);
   pinMode(SRV, OUTPUT);
 
+  // Set ultrasonic pins
+  pinMode(echo, INPUT);
+  pinMode(trigger, OUTPUT);
+
   // Start serial communication
   Serial.begin(9600);
 }
 
 void loop() {
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE");
+  Serial.println("DONE"); */
+
+
 
   // Loop prevention
   while (true) {
@@ -230,4 +236,16 @@ void look_fw() {
 
 void look_left() {
   servo.write(168);
+}
+
+//ULTRASONIC SENSOR
+void sense_dist() {
+  digitalWrite(trigger, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigger, HIGH);
+  delay(10);
+  digitalWrite(trigger, LOW);
+  float dist = (pulseIn(echo,HIGH))/58;
+  Serial.print("Dist: ");
+  Serial.println(dist);
 }
