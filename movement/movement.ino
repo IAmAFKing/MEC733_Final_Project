@@ -74,7 +74,7 @@ void loop() {
   }
   Serial.println("DONE"); */
 
-
+  sense_dist();
 
   // Loop prevention
   while (true) {
