@@ -9,3 +9,4 @@
 - [ ] Ultra sonic
 - [ ] Set up maze
 - [ ] Orientation
+- [ ] Tune turning adjustments
