@@ -1,3 +1,4 @@
+#include "Arduino.h"
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
@@ -11,8 +12,17 @@
 #define CENTER_SENSOR A1
 #define LEFT_SENSOR A2
 
-// Default speed of the motors (0-255)
+// Speed of the motors (0-255)
 int motor_speed = 63;
+
+// Photosensor values
+int right_value;
+int left_value;
+int center_value;
+
+bool center;
+bool right;
+bool left;
 
 void setup() {
   // Set motor control pins as outputs
@@ -35,20 +45,18 @@ void setup() {
 }
 
 void loop() {
-  /* bool end_line = false;
-
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
-    end_line = photosensor();
-  } */
+    end_line = photosensor();   //start line tracking until condition is met
+  }
+  Serial.println("DONE");
 
-  forward();
-  delay(1000);
-  stop();
-
+  // Loop prevention
   while (true) {
   }
 }
 
+//MOVEMENT FUNCTIONS
 void forward() {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
@@ -56,13 +64,13 @@ void forward() {
   digitalWrite(IN2, HIGH);
 }
 
-void stop() {
+void stop(int time) {
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
-  delay(1000);
+  delay(time);
 }
 
-void rotate_left() {
+/* void rotate_left() {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
@@ -74,91 +82,124 @@ void rotate_right() {
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
-}
+} */
 
-void turn_left(int motor2) {
+void turn_left(int speed2) {
   analogWrite(ENA, motor_speed);
-  analogWrite(ENB, motor2);
+  analogWrite(ENB, speed2);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
 }
 
-void turn_right(int motor2) {
-  analogWrite(ENA, motor2);
+void turn_right(int speed2) {
+  analogWrite(ENA, speed2);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
 }
 
+//LINE TRACKING 
 bool photosensor() {
-  int right_value = analogRead(RIGHT_SENSOR);
-  int left_value = analogRead(LEFT_SENSOR);
-  int center_value = analogRead(CENTER_SENSOR);
+  check_val();                            //checks values of photosensors
 
-  bool center = center_value >= 700 && center_value <= 950;
-  bool right = right_value >= 600 && right_value <= 950;
-  bool left = left_value >= 600 && left_value <= 950;
-
-/*   Serial.print("Left sensor: ");
+  Serial.print("Left sensor: ");
   Serial.print(left_value);
-  Serial.print("\t center sensor: ");
+  Serial.print(" \t center sensor: ");
   Serial.print(center_value);
   Serial.print("\t right sensor: ");
-  Serial.println(right_value); */
+  Serial.print(right_value);
 
   // Line-following logic
-  if (center) {
-    if (right) {
-      turn_right(31);
-    } else if (left) {
-      turn_left(31);
-    } else {
-      forward();
+  // Start line tracking if end condition is not met (reaches horizontal black line)
+  if (!(left && right)) {
+    // When black line is near the center
+    if (center) {
+      check_error();                    //checks for errors in how center it is
     }
-  } else if (right) {
-    turn_right(63);
-  } else if (left) {
-    turn_left(63);
-  } else if (!center && !right && !left) { //search mode
-
-    for (int i=0; i<20000; i++) {
-      rotate_left();
-      left_value = analogRead(LEFT_SENSOR);
-      center_value = analogRead(CENTER_SENSOR);
-  
-      left = left_value >= 600 && left_value <= 950;
-      center = center_value >= 700 && center_value <= 950;
-      if (left) {
-        stop();
+    // Black line completely on left side
+    else if (left) {
+      Serial.println(" left rotate");
+      turn_left(63);                    //rotate left to compensate
+    }
+    // Black line completely on right side
+    else if (right) {
+      Serial.println(" right rotate");
+      turn_right(63);                   //rotate right to compensate
+    }
+    // Black line nowhere to be found
+    else {                              //enter search mode
+      Serial.println(" search");
+      // Check for black line at each turn interval
+      for (int i=0; i<2000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+        // Trurn a bit and check sensor values
+        turn_left(63);
+        check_val();
+        if (center) {
+          // Break out of search loop and resume line tracking
+          stop(10);
+          break;
+        }
+      }
+      // Only check right if nothing was found on the left side
+      // Repeat above steps
+      if (!center) {
+        for (int i=0; i<4000; i++) {
+          turn_right(63);
+          check_val();
+          if (center) {
+            stop(10);
+            break;
+          }
+        }
+      }
+      // Stop if cannot find line on either side
+      if (!center) {
+        stop(1000);
+        Serial.println("lost");
+        while(true){
+        }
       }
     }
-    for (int i=0; i<20000; i++) {
-      rotate_right();
-      right_value = analogRead(RIGHT_SENSOR);
-      center_value = analogRead(CENTER_SENSOR);
-  
-      right = right_value >= 600 && right_value <= 950;
-      center = center_value >= 700 && center_value <= 950;
-      if (right) {
-        photosensor();
-      }
-    }
-    rotate_left();
-    delay(1000);
-    stop();
-    delay(1000);
-    /* Serial.print("end");
-    stop();
-    return true; */
-    /* for (int i=0; i<20000; i++) {
-      rotate_left();
-      if (left) {
-        photosensor();
-      }
-    } */
   }
+  // End condition where it reaches the horizontal black line
+  // May need to be changed as starting position might have a black line too
+  else {
+    stop(100);
+    Serial.println();
+    return true;        //end conition has been met
+  }
+  return false;         //end condition has not been met
 
   delay(10);
-  return false;
+}
 
+// Check values from photosensor
+void check_val() {
+  right_value = analogRead(RIGHT_SENSOR);
+  left_value = analogRead(LEFT_SENSOR);
+  center_value = analogRead(CENTER_SENSOR);
+  
+  // Black line range between 700 and 950. Record if the sensors detect something in that range
+  center = center_value >= 700 && center_value <= 950;
+  right = right_value >= 700 && right_value <= 950;
+  left = left_value >= 700 && left_value <= 950;
+}
+
+// Checking left or right errors when center detects the line
+void check_error() {
+  if (left)
+  {
+    Serial.println(" left turn");
+    turn_left(0);                   //slower turn left to compensate
+  }
+  else if (right)
+  {
+    Serial.println(" right turn");
+    turn_right(0);                  //slower turn right to compensate
+  }
+  else
+  {
+    Serial.println(" forward");
+    forward();                      //no error go straight ahead
+  }
 }
