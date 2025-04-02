@@ -5,8 +5,8 @@
 - [x] End line condition
     - Weird bug with it turning when it reaches the end
 - [x] Push to main
-- [ ] Servo code
-- [ ] Ultra sonic
+- [x] Servo code
+- [x] Ultra sonic
 - [ ] Set up maze
 - [ ] Orientation
 - [ ] Tune turning adjustments
