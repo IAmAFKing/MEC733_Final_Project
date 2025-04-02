@@ -64,13 +64,11 @@ void setup() {
 }
 
 void loop() {
-  /* bool end_line=false;          //end of line tracking condition
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE"); */
-
-  servo_test();
+  Serial.println("DONE");
 
   // Loop prevention
   while (true) {
@@ -226,11 +224,10 @@ void check_error() {
 }
 
 //SERVO MOVEMENT
-void servo_test() {
-  servo.write(0);
-  delay(1000);
-  servo.write(180);
-  delay(1000);
-  servo.write(90);
-  delay(1000);
+void look_fw() {
+  servo.write(55);
+}
+
+void look_left() {
+  servo.write(168);
 }
