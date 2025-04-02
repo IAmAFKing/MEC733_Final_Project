@@ -4,7 +4,7 @@
     - what is the fastest forward speed
 - [x] End line condition
     - Weird bug with it turning when it reaches the end
-- [ ] Push to main
+- [x] Push to main
 - [ ] Servo code
 - [ ] Ultra sonic
 - [ ] Set up maze
