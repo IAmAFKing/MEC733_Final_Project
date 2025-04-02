@@ -74,7 +74,9 @@ void loop() {
   }
   Serial.println("DONE"); */
 
-  sense_dist();
+  while(true) {
+    sense_dist();
+  }
 
   // Loop prevention
   while (true) {
@@ -247,5 +249,7 @@ void sense_dist() {
   digitalWrite(trigger, LOW);
   float dist = (pulseIn(echo,HIGH))/58;
   Serial.print("Dist: ");
-  Serial.println(dist);
+  Serial.print(dist);
+  Serial.println("cm");
+  delay(100);
 }
