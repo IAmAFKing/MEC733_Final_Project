@@ -4,9 +4,9 @@
     - what is the fastest forward speed
 - [x] End line condition
     - Weird bug with it turning when it reaches the end
-- [ ] Push to main
-- [ ] Servo code
-- [ ] Ultra sonic
+- [x] Push to main
+- [x] Servo code
+- [x] Ultra sonic
 - [ ] Set up maze
 - [ ] Orientation
 - [ ] Tune turning adjustments

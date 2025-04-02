@@ -1,19 +1,18 @@
-#include "Arduino.h"
+#include <Servo.h>
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
 #define IN1 7  // Right motor
 #define IN2 8  // Left motor
-
 #define STBY 3 // Standby pin for enabling motor driver
-
-// Line sensor pins
-#define RIGHT_SENSOR A0  
-#define CENTER_SENSOR A1
-#define LEFT_SENSOR A2
 
 // Speed of the motors (0-255)
 int motor_speed = 63;
+
+// Photosensor pins
+#define RIGHT_SENSOR A0  
+#define CENTER_SENSOR A1
+#define LEFT_SENSOR A2
 
 // Photosensor values
 int right_value;
@@ -24,6 +23,22 @@ bool center;
 bool right;
 bool left;
 
+// Servo pins
+#define SRV 10
+
+// Servo class name
+Servo servo;
+
+// Ultrasonic pins
+#define echo 12     //recieve pulse
+#define trigger 13  //send pulse
+
+// Ultrasonic values
+float rd = 0; // right distance
+float ld = 0; // left distance
+float fd = 0; // forward distance
+float stop_dist = 12;
+
 void setup() {
   // Set motor control pins as outputs
   pinMode(IN1, OUTPUT);
@@ -32,24 +47,36 @@ void setup() {
   pinMode(ENB, OUTPUT);
   pinMode(STBY, OUTPUT);
 
+  // Enable motor driver
+  digitalWrite(STBY, HIGH);
+
   // Set sensor as input
   pinMode(RIGHT_SENSOR, INPUT);
   pinMode(LEFT_SENSOR, INPUT);
   pinMode(CENTER_SENSOR, INPUT);
 
-  // Enable motor driver
-  digitalWrite(STBY, HIGH);
+  // Set servo as output
+  servo.attach(SRV);
+  pinMode(SRV, OUTPUT);
+
+  // Set ultrasonic pins
+  pinMode(echo, INPUT);
+  pinMode(trigger, OUTPUT);
 
   // Start serial communication
   Serial.begin(9600);
 }
 
 void loop() {
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE");
+  Serial.println("DONE"); */
+
+  while(true) {
+    sense_dist();
+  }
 
   // Loop prevention
   while (true) {
@@ -202,4 +229,44 @@ void check_error() {
     Serial.println(" forward");
     forward();                      //no error go straight ahead
   }
+}
+
+//SERVO MOVEMENT
+void look_fw() {
+  servo.write(55);
+}
+
+void look_left() {
+  servo.write(168);
+}
+
+//ULTRASONIC SENSOR
+float sense_dist() {
+  digitalWrite(trigger, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigger, HIGH);
+  delay(10);
+  digitalWrite(trigger, LOW);
+  float dist = (pulseIn(echo,HIGH))/58;
+  Serial.print("Dist: ");
+  Serial.print(dist);
+  Serial.println("cm");
+  return dist;
+}
+
+//MAZE ALGORITHM
+
+/* SUDO CODE
+
+enters cell
+  needs to enter going straight
+  ik the line tracking is really wild with the turns, gonna need to change that
+as it enters, it checks dist to left wall
+  adjusts to get closer to wanted distance
+    greater than expected, turn left until distance is going down
+
+
+*/
+void orientation() {
+  
 }
