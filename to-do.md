@@ -2,6 +2,10 @@
     - the sharper the turn, the slower the car needs to be or the sharper the turn needs to be
     - if the turn is too sharp, will it veer off course?
     - what is the fastest forward speed
-- [ ] End line condition
+- [x] End line condition
     - Weird bug with it turning when it reaches the end
+- [ ] Push to main
 - [ ] Servo code
+- [ ] Ultra sonic
+- [ ] Set up maze
+- [ ] Orientation
