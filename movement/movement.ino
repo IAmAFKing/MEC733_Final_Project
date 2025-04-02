@@ -24,7 +24,7 @@ bool right;
 bool left;
 
 // Servo pins
-#define SRV 10;
+#define SRV 10
 
 // Servo class name
 Servo servo;
@@ -56,8 +56,8 @@ void setup() {
   pinMode(CENTER_SENSOR, INPUT);
 
   // Set servo as output
-  pinMode(SRV,OUTPUT);
   servo.attach(SRV);
+  pinMode(SRV, OUTPUT);
 
   // Start serial communication
   Serial.begin(9600);
@@ -227,10 +227,10 @@ void check_error() {
 
 //SERVO MOVEMENT
 void servo_test() {
-  servo.write(90);
+  servo.write(0);
   delay(1000);
   servo.write(180);
   delay(1000);
-  servo.write(0);
+  servo.write(90);
   delay(1000);
 }
