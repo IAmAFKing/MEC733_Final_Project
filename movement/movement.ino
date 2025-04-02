@@ -1,19 +1,18 @@
-#include "Arduino.h"
+#include <Servo.h>
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
 #define IN1 7  // Right motor
 #define IN2 8  // Left motor
-
 #define STBY 3 // Standby pin for enabling motor driver
-
-// Line sensor pins
-#define RIGHT_SENSOR A0  
-#define CENTER_SENSOR A1
-#define LEFT_SENSOR A2
 
 // Speed of the motors (0-255)
 int motor_speed = 63;
+
+// Photosensor pins
+#define RIGHT_SENSOR A0  
+#define CENTER_SENSOR A1
+#define LEFT_SENSOR A2
 
 // Photosensor values
 int right_value;
@@ -24,6 +23,22 @@ bool center;
 bool right;
 bool left;
 
+// Servo pins
+#define SRV 10;
+
+// Servo class name
+Servo servo;
+
+// Ultrasonic pins
+#define echo 12     //recieve pulse
+#define trigger 13  //send pulse
+
+// Ultrasonic values
+int rd = 0; // right distance
+int ld = 0; // left distance
+int fd = 0; // forward distance
+int stop_dist = 12;
+
 void setup() {
   // Set motor control pins as outputs
   pinMode(IN1, OUTPUT);
@@ -32,24 +47,30 @@ void setup() {
   pinMode(ENB, OUTPUT);
   pinMode(STBY, OUTPUT);
 
+  // Enable motor driver
+  digitalWrite(STBY, HIGH);
+
   // Set sensor as input
   pinMode(RIGHT_SENSOR, INPUT);
   pinMode(LEFT_SENSOR, INPUT);
   pinMode(CENTER_SENSOR, INPUT);
 
-  // Enable motor driver
-  digitalWrite(STBY, HIGH);
+  // Set servo as output
+  pinMode(SRV,OUTPUT);
+  servo.attach(SRV);
 
   // Start serial communication
   Serial.begin(9600);
 }
 
 void loop() {
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE");
+  Serial.println("DONE"); */
+
+  servo_test();
 
   // Loop prevention
   while (true) {
@@ -202,4 +223,14 @@ void check_error() {
     Serial.println(" forward");
     forward();                      //no error go straight ahead
   }
+}
+
+//SERVO MOVEMENT
+void servo_test() {
+  servo.write(90);
+  delay(1000);
+  servo.write(180);
+  delay(1000);
+  servo.write(0);
+  delay(1000);
 }
