@@ -34,10 +34,10 @@ Servo servo;
 #define trigger 13  //send pulse
 
 // Ultrasonic values
-int rd = 0; // right distance
-int ld = 0; // left distance
-int fd = 0; // forward distance
-int stop_dist = 12;
+float rd = 0; // right distance
+float ld = 0; // left distance
+float fd = 0; // forward distance
+float stop_dist = 12;
 
 void setup() {
   // Set motor control pins as outputs
@@ -241,7 +241,7 @@ void look_left() {
 }
 
 //ULTRASONIC SENSOR
-void sense_dist() {
+float sense_dist() {
   digitalWrite(trigger, LOW);
   delayMicroseconds(2);
   digitalWrite(trigger, HIGH);
@@ -251,5 +251,22 @@ void sense_dist() {
   Serial.print("Dist: ");
   Serial.print(dist);
   Serial.println("cm");
-  delay(100);
+  return dist;
+}
+
+//MAZE ALGORITHM
+
+/* SUDO CODE
+
+enters cell
+  needs to enter going straight
+  ik the line tracking is really wild with the turns, gonna need to change that
+as it enters, it checks dist to left wall
+  adjusts to get closer to wanted distance
+    greater than expected, turn left until distance is going down
+
+
+*/
+void orientation() {
+  
 }
