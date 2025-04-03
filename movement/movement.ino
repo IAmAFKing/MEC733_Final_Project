@@ -97,6 +97,13 @@ void forward() {
   digitalWrite(IN2, HIGH);
 }
 
+void backward() {
+  analogWrite(ENA, motor_speed);
+  analogWrite(ENB, motor_speed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+}
+
 void stop(int time) {
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
@@ -287,21 +294,21 @@ void orientation() {
   look_left();
   ld = sense_dist();        //measure current distance
   while(ld<30) {            //testing only
-    while (ld<center_range[0] || ld>center_range[1]) {   //outside range
-      if (ld<center_range[0]) {
-        turn_right(63);
+    while (ld<center_range[0] || ld>center_range[1]) {    //outside range
+      if (ld<center_range[0]) {                           //too close to wall
+        backward();                                       //move a bit back
         delay(50);
-        forward();
-        delay(50);
+        turn_right(63);                                   //turn out
+        delay(50);                                        //turn angle to fix alignment, may change
         stop(5);
       } else if (ld>center_range[1]) {
+        backward();
+        delay(50);
         turn_left(63);
-        delay(50);            //turn angle to fix alignment, may change
-        forward();
         delay(50);
         stop(5);
       }
-      ld = sense_dist();
+      ld = sense_dist();                                  //test if still outside range
     }
     forward();
     ld = sense_dist();
