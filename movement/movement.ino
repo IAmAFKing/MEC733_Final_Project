@@ -83,6 +83,7 @@ void loop() {
   line = false;
   delay(3000); */
 
+  line=false;
   transition();
   
   /* look_left();
@@ -95,7 +96,7 @@ void loop() {
 
   //rotateL90();
 
-  next_cell(duration_enter);
+  //next_cell(duration_enter);
 
   // Loop prevention
   while (true) {
