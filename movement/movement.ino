@@ -38,7 +38,7 @@ float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
-float center_range[2] = {13,17}; //distance from wall
+float center_range[2] = {13.0,17.0}; //distance from wall
 
 void setup() {
   // Set motor control pins as outputs
@@ -75,6 +75,12 @@ void loop() {
     end_line = photosensor();   //start line tracking until condition is met
   }
   Serial.println("DONE"); */
+  
+  /* look_left();
+  while (true) {
+    sense_dist();
+    delay(1000);
+  } */
 
   orientation();
 
@@ -278,27 +284,29 @@ Can test functionality with line tracker
 */
 
 void orientation() {
-  stop(5);
   look_left();
   ld = sense_dist();        //measure current distance
-  while (ld<center_range[0] || ld>center_range[1]) {   //outside range
-    if (ld<center_range[0]) {
-      turn_right(63);
-      delay(50);
-      stop(5);
-      forward();
-      delay(50);
-      stop(5);
-    } else if (ld>center_range[1]) {
-      turn_left(63);
-      delay(50);            //turn angle to fix alignment, may change
-      stop(5);
-      forward();
-      delay(50);
-      stop(5);
+  while(ld<30) {            //testing only
+    while (ld<center_range[0] || ld>center_range[1]) {   //outside range
+      if (ld<center_range[0]) {
+        turn_right(63);
+        delay(50);
+        forward();
+        delay(50);
+        stop(5);
+      } else if (ld>center_range[1]) {
+        turn_left(63);
+        delay(50);            //turn angle to fix alignment, may change
+        forward();
+        delay(50);
+        stop(5);
+      }
+      ld = sense_dist();
     }
+    forward();
     ld = sense_dist();
   }
+  stop(5);
 }
 
 /* SUDO CODE
