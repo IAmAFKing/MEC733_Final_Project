@@ -71,11 +71,12 @@ void setup() {
 
 void loop() {
 
-  /* bool end_line=false;          //end of line tracking condition
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE"); */
+  Serial.println("DONE");
+  delay(3000);
   
   /* look_left();
   while (true) {
@@ -83,7 +84,7 @@ void loop() {
     delay(1000);
   } */
 
-  orientation();
+  //orientation();
 
   // Loop prevention
   while (true) {
