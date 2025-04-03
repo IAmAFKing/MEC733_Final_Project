@@ -86,7 +86,7 @@ void loop() {
 
   //orientation();
 
-  next_cell();
+  rotateL90();
 
   // Loop prevention
   while (true) {
@@ -345,5 +345,17 @@ once it reaches the "supposed" center of the next cell
 void next_cell() {
   forward();        //move forward
   delay(1400);      //determines distance travelled. Affected by speed. difts are significant
+  stop(5);
+}
+
+void rotateL90() {
+  turn_left(63);
+  delay(1010);      //timing to reach 90
+  stop(5);
+}
+
+void rotateR90() {
+  turn_right(63);
+  delay(1010);      //timing to reach 90
   stop(5);
 }
