@@ -37,7 +37,8 @@ Servo servo;
 float rd = 0; // right distance
 float ld = 0; // left distance
 float fd = 0; // forward distance
-float stop_dist = 12;
+float stop_dist = 2;
+float center_dist = 7;
 
 void setup() {
   // Set motor control pins as outputs
@@ -69,11 +70,22 @@ void setup() {
 
 void loop() {
 
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE");
+  Serial.println("DONE"); */
+
+  look_left();
+  sense_dist();
+  turn_left(63);
+  delay(50);
+  stop(5);
+  sense_dist();
+  forward();
+  delay(50);
+  stop(5);
+  sense_dist();
 
   // Loop prevention
   while (true) {
@@ -248,9 +260,9 @@ float sense_dist() {
   digitalWrite(trigger, HIGH);
   delay(10);
   digitalWrite(trigger, LOW);
-  float dist = (pulseIn(echo,HIGH))/58;
+  float dist = (pulseIn(echo,HIGH))/58.3;
   Serial.print("Dist: ");
-  Serial.print(dist);
+  Serial.print(dist, 3);
   Serial.println("cm");
   return dist;
 }
@@ -270,8 +282,20 @@ as it enters, it checks dist to left wall
     less than expected, turn right, same as above
 
 Can test functionality with line tracker
+  works
 
 */
+
 void orientation() {
-  
+  look_left();
+  while(sense_dist()<15) {
+    ld=sense_dist();
+    if (ld > center_dist) {
+      turn_left(63);
+      delay(50);
+      stop(5);
+      forward();
+      delay(10);      //
+    }
+  }
 }
