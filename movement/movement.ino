@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <avr/io.h>
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
@@ -30,14 +31,15 @@ bool left;
 Servo servo;
 
 // Ultrasonic pins
-#define echo 12     //recieve pulse
-#define trigger 13  //send pulse
+#define echo 12         //recieve pulse
+#define trigger 13      //send pulse
 
 // Ultrasonic values
-float rd = 0; // right distance
-float ld = 0; // left distance
-float fd = 0; // forward distance
-float stop_dist = 12;
+float rd = 0;           //right distance
+float ld = 0;           //left distance
+float fd = 0;           //forward distance
+float stop_dist = 2;    //stopping distance
+float center_range[2] = {11.0,17.0}; //distance from wall
 
 void setup() {
   // Set motor control pins as outputs
@@ -68,15 +70,20 @@ void setup() {
 }
 
 void loop() {
+
   /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
   Serial.println("DONE"); */
-
-  while(true) {
+  
+  /* look_left();
+  while (true) {
     sense_dist();
-  }
+    delay(1000);
+  } */
+
+  orientation();
 
   // Loop prevention
   while (true) {
@@ -89,6 +96,13 @@ void forward() {
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
+}
+
+void backward() {
+  analogWrite(ENA, motor_speed);
+  analogWrite(ENB, motor_speed);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
 }
 
 void stop(int time) {
@@ -157,7 +171,7 @@ bool photosensor() {
     else {                              //enter search mode
       Serial.println(" search");
       // Check for black line at each turn interval
-      for (int i=0; i<2000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+      for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
         turn_left(63);
         check_val();
@@ -170,7 +184,7 @@ bool photosensor() {
       // Only check right if nothing was found on the left side
       // Repeat above steps
       if (!center) {
-        for (int i=0; i<4000; i++) {
+        for (int i=0; i<2000; i++) {
           turn_right(63);
           check_val();
           if (center) {
@@ -218,11 +232,15 @@ void check_error() {
   {
     Serial.println(" left turn");
     turn_left(0);                   //slower turn left to compensate
+    delay(120);
+    stop(5);
   }
   else if (right)
   {
     Serial.println(" right turn");
     turn_right(0);                  //slower turn right to compensate
+    delay(120);
+    stop(5);
   }
   else
   {
@@ -247,9 +265,9 @@ float sense_dist() {
   digitalWrite(trigger, HIGH);
   delay(10);
   digitalWrite(trigger, LOW);
-  float dist = (pulseIn(echo,HIGH))/58;
+  float dist = (pulseIn(echo,HIGH))/58.3;
   Serial.print("Dist: ");
-  Serial.print(dist);
+  Serial.print(dist, 3);
   Serial.println("cm");
   return dist;
 }
@@ -263,10 +281,66 @@ enters cell
   ik the line tracking is really wild with the turns, gonna need to change that
 as it enters, it checks dist to left wall
   adjusts to get closer to wanted distance
-    greater than expected, turn left until distance is going down
+    greater than expected, turn left, measure value, compare to previous value measured
+      keep turning until going down
+      go straight
+    less than expected, turn right, same as above
+
+Can test functionality with line tracker
+  works
+
+*/
+
+void orientation() {
+  look_left();
+  ld = sense_dist();        //measure current distance
+  while(ld<30) {            //testing only
+    while (ld<center_range[0] || ld>center_range[1]) {    //outside range
+      if (ld<center_range[0]) {                           //too close to wall
+        backward();                                       //move a bit back
+        delay(50);
+        turn_right(63);                                   //turn out
+        delay(50);                                        //turn angle to fix alignment, may change
+        stop(5);
+      } else if (ld>center_range[1]) {
+        backward();
+        delay(50);
+        turn_left(63);
+        delay(50);
+        stop(5);
+      }
+      Serial.print("Test range ");
+      ld = sense_dist();                                  //test if still outside range
+    }
+    forward();
+    Serial.print("End ");
+    ld = sense_dist();
+  }
+  stop(1000);
+}
+
+/* SUDO CODE
+
+car moves forward a certain distance to get to cell
+  meanwhile it is also checking to make sure it is straight/in line
+    cant use delay, need to use internal timer that runs seperate
+once it reaches the "supposed" center of the next cell
+  check forward
+    if wall, readjust to correct distance
+      check for left wall
+      if left wall rotate 90 right
+        check forward
+        if forward, rotate 90 right and go to next cell
+      if no left wall, rotate 90 left, go next cell
+    if no front wall, check left
+      if left wall, go to next cell
+      if no left wall, rotate 90 left and go next cell
 
 
 */
-void orientation() {
-  
+
+void next_cell() {
+  forward();        //move forward
+  delay(3000);      //determines distance travelled. Affected by speed
+
 }

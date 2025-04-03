@@ -7,6 +7,22 @@
 - [x] Push to main
 - [x] Servo code
 - [x] Ultra sonic
-- [ ] Set up maze
-- [ ] Orientation
+- [x] Set up maze
+- [x] Orientation
+    - Cneter range affects the angle the car can approach from before going backwards
+    - Prefer if it is as tight as possible, testing needed from maze and what angles the car would reasonably approach from
 - [ ] Tune turning adjustments
+- [ ] Sudo and skeleton code for distance between maze cells
+    - Figure out internal timers
+- [ ] Maze solving algorithm skeleton
+
+IN LAB:
+- [ ] Tune turning adjustments for line tracking
+- [ ] Determine how each tasks starts
+    - If line tracking starts on horizontal black line, some code needs to be changed
+    - Distance from end of line tracking to first maze cell
+        - Can touch between tasks?
+- [ ] Tune center bounds
+- [ ] Start maze movements
+    - [ ] Get approximate cell distance in time delay
+    - [ ] 90 degree rotation in time delay
