@@ -8,5 +8,18 @@
 - [x] Servo code
 - [x] Ultra sonic
 - [ ] Set up maze
-- [ ] Orientation
+- [x] Orientation
 - [ ] Tune turning adjustments
+- [ ] Maze solving algorithm skeleton
+- [ ] Sudo and skeleton code for distance between maze cells
+
+IN LAB:
+- [ ] Tune turning adjustments for line tracking
+- [ ] Determine how each tasks starts
+    - If line tracking starts on horizontal black line, some code needs to be changed
+    - Distance from end of line tracking to first maze cell
+        - Can touch between tasks?
+- [ ] Tune center bounds
+- [ ] Start maze movements
+    - [ ] Get approximate cell distance in time delay
+    - [ ] 90 degree rotation in time delay
