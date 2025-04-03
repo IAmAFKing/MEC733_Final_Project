@@ -24,6 +24,8 @@ bool center;
 bool right;
 bool left;
 
+bool line=true;
+
 // Servo pins
 #define SRV 10
 
@@ -40,7 +42,8 @@ float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
-unsigned long duration = 1450;  //duration to next cell
+unsigned long duration_maze = 1450;  //duration to next cell
+unsigned long duration_enter = 1000; //duration to enter maze
 
 void setup() {
   // Set motor control pins as outputs
@@ -74,10 +77,13 @@ void loop() {
 
   /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
-    end_line = photosensor();   //start line tracking until condition is met
+    end_line = photosensor(line);   //start line tracking until condition is met
   }
   Serial.println("DONE");
+  line = false;
   delay(3000); */
+
+  transition();
   
   /* look_left();
   while (true) {
@@ -89,7 +95,7 @@ void loop() {
 
   //rotateL90();
 
-  next_cell();
+  next_cell(duration_enter);
 
   // Loop prevention
   while (true) {
@@ -146,7 +152,7 @@ void turn_right(int speed2) {
 }
 
 //LINE TRACKING 
-bool photosensor() {
+bool photosensor(bool line) {
   check_val();                            //checks values of photosensors
 
   Serial.print("Left sensor: ");
@@ -175,17 +181,21 @@ bool photosensor() {
     }
     // Black line nowhere to be found
     else {                              //enter search mode
-      Serial.println(" search");
-      // Check for black line at each turn interval
-      for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
-        // Trurn a bit and check sensor values
-        turn_left(63);
-        check_val();
-        if (center) {
-          // Break out of search loop and resume line tracking
-          stop(10);
-          break;
+      if (line) {
+        Serial.println(" search");
+        // Check for black line at each turn interval
+        for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+          // Trurn a bit and check sensor values
+          turn_left(63);
+          check_val();
+          if (center) {
+            // Break out of search loop and resume line tracking
+            stop(10);
+            break;
+          }
         }
+      } else {
+        return true;
       }
       // Only check right if nothing was found on the left side
       // Repeat above steps
@@ -298,7 +308,7 @@ Can test functionality with line tracker
 */
 
 // Keep center/straight
-void orientation() {
+void orientation(unsigned long duration) {
   look_left();
   unsigned long startPause;
   unsigned long endPause;
@@ -354,11 +364,11 @@ void follow_left() {
 
 }
 
-void next_cell() {
+void next_cell(unsigned long duration) {
   forward();        //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
-    orientation();
+    orientation(duration);
   }
   stop(5);
 }
@@ -373,4 +383,18 @@ void rotateR90() {
   turn_right(63);
   delay(1010);      //timing to reach 90
   stop(5);
+}
+// Moving between line tracking and maze
+
+/* Sudo Code
+
+  photosensor until can not longer detect line (entered maze)
+  enter cell with different duration to center (find that time);
+
+*/
+void transition() {
+  bool entered = false;
+  while (!entered) {
+    photosensor(line);
+  }
 }
