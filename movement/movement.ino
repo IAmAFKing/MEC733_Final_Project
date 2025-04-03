@@ -38,7 +38,7 @@ float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
-float center_range[2] = {13.0,17.0}; //distance from wall
+float center_range[2] = {11.0,17.0}; //distance from wall
 
 void setup() {
   // Set motor control pins as outputs
@@ -308,12 +308,14 @@ void orientation() {
         delay(50);
         stop(5);
       }
+      Serial.print("Test range ");
       ld = sense_dist();                                  //test if still outside range
     }
     forward();
+    Serial.print("End ");
     ld = sense_dist();
   }
-  stop(5);
+  stop(1000);
 }
 
 /* SUDO CODE
