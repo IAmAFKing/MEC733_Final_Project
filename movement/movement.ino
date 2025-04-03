@@ -302,7 +302,8 @@ void orientation() {
   look_left();
   unsigned long startPause;
   unsigned long endPause;
-  ld = sense_dist();        //measure current distance
+  int counter=0;
+  ld = sense_dist();                                    //measure current distance
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
     if (ld<center_range[0]) {                           //too close to wall
       startPause = millis();
@@ -313,6 +314,7 @@ void orientation() {
       stop(5);
       endPause = millis();
       duration += (endPause-startPause);
+      counter++;
     } else if (ld>center_range[1]) {
       backward();
       delay(50);
@@ -323,6 +325,7 @@ void orientation() {
     Serial.print("Test range ");
     ld = sense_dist();                                  //test if still outside range
   }
+  duration += counter*10;                               //correction factor
   forward();
   Serial.print("End ");
 }
