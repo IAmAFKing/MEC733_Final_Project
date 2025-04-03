@@ -40,7 +40,7 @@ float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
-unsigned long duration = 1400;  //duration to next cell
+unsigned long duration = 1450;  //duration to next cell
 
 void setup() {
   // Set motor control pins as outputs
@@ -325,7 +325,7 @@ void orientation() {
     Serial.print("Test range ");
     ld = sense_dist();                                  //test if still outside range
   }
-  duration += counter*10;                               //correction factor
+  duration += counter*55;                               //correction factor
   forward();
   Serial.print("End ");
 }
