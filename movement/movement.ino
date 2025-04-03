@@ -71,12 +71,12 @@ void setup() {
 
 void loop() {
 
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
   Serial.println("DONE");
-  delay(3000);
+  delay(3000); */
   
   /* look_left();
   while (true) {
@@ -85,6 +85,8 @@ void loop() {
   } */
 
   //orientation();
+
+  next_cell();
 
   // Loop prevention
   while (true) {
@@ -342,6 +344,6 @@ once it reaches the "supposed" center of the next cell
 
 void next_cell() {
   forward();        //move forward
-  delay(3000);      //determines distance travelled. Affected by speed
-
+  delay(1400);      //determines distance travelled. Affected by speed. difts are significant
+  stop(5);
 }
