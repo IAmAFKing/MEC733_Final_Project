@@ -30,15 +30,15 @@ bool left;
 Servo servo;
 
 // Ultrasonic pins
-#define echo 12     //recieve pulse
-#define trigger 13  //send pulse
+#define echo 12         //recieve pulse
+#define trigger 13      //send pulse
 
 // Ultrasonic values
-float rd = 0; // right distance
-float ld = 0; // left distance
-float fd = 0; // forward distance
-float stop_dist = 2;
-float center_dist = 7;
+float rd = 0;           //right distance
+float ld = 0;           //left distance
+float fd = 0;           //forward distance
+float stop_dist = 2;    //stopping distance
+float center_dist = 15; //distance from wall
 
 void setup() {
   // Set motor control pins as outputs
@@ -78,12 +78,8 @@ void loop() {
 
   look_left();
   sense_dist();
-  turn_left(63);
-  delay(50);
-  stop(5);
-  sense_dist();
   forward();
-  delay(50);
+  delay(100);
   stop(5);
   sense_dist();
 
@@ -288,14 +284,27 @@ Can test functionality with line tracker
 
 void orientation() {
   look_left();
-  while(sense_dist()<15) {
-    ld=sense_dist();
+  stop(5);
+  while(sense_dist()<25) {
+    ld = sense_dist();
     if (ld > center_dist) {
-      turn_left(63);
-      delay(50);
-      stop(5);
+      float ld2;
+      do {
+        ld = sense_dist();
+        turn_left(63);
+        delay(50);            //turn angle to fix alignment, may change
+        stop(5);
+        forward();
+        delay(50);
+        stop(5);
+        ld2 = sense_dist();   //second dist
+      }
+      while (ld2>ld);         //it is moving away from center, do again
       forward();
-      delay(10);      //
+      delay(200);
+      stop(5);
+      Serial.println("Correct angle");
+      break;
     }
   }
 }
