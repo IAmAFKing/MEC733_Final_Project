@@ -38,7 +38,7 @@ float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
-float center_dist = 15; //distance from wall
+float center_range[2] = {13,17}; //distance from wall
 
 void setup() {
   // Set motor control pins as outputs
@@ -76,12 +76,7 @@ void loop() {
   }
   Serial.println("DONE"); */
 
-  look_left();
-  sense_dist();
-  forward();
-  delay(100);
-  stop(5);
-  sense_dist();
+  orientation();
 
   // Loop prevention
   while (true) {
@@ -283,28 +278,25 @@ Can test functionality with line tracker
 */
 
 void orientation() {
-  look_left();
   stop(5);
-  while(sense_dist()<25) {
-    ld = sense_dist();
-    if (ld > center_dist) {
-      float ld2;
-      do {
-        ld = sense_dist();
-        turn_left(63);
-        delay(50);            //turn angle to fix alignment, may change
-        stop(5);
-        forward();
-        delay(50);
-        stop(5);
-        ld2 = sense_dist();   //second dist
-      }
-      while (ld2>ld);         //it is moving away from center, do again
-      forward();
-      delay(200);
+  look_left();
+  ld = sense_dist();        //measure current distance
+  while (ld<center_range[0] || ld>center_range[1]) {   //outside range
+    if (ld<center_range[0]) {
+      turn_right(63);
+      delay(50);
       stop(5);
-      Serial.println("Correct angle");
-      break;
+      forward();
+      delay(50);
+      stop(5);
+    } else if (ld>center_range[1]) {
+      turn_left(63);
+      delay(50);            //turn angle to fix alignment, may change
+      stop(5);
+      forward();
+      delay(50);
+      stop(5);
     }
+    ld = sense_dist();
   }
 }
