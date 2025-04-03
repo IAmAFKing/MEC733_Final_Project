@@ -154,7 +154,7 @@ bool photosensor() {
     else {                              //enter search mode
       Serial.println(" search");
       // Check for black line at each turn interval
-      for (int i=0; i<500; i++) {      //2000 gives a wide enough search radius. Can be reduced
+      for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
         turn_left(63);
         check_val();
@@ -167,7 +167,7 @@ bool photosensor() {
       // Only check right if nothing was found on the left side
       // Repeat above steps
       if (!center) {
-        for (int i=0; i<1000; i++) {
+        for (int i=0; i<2000; i++) {
           turn_right(63);
           check_val();
           if (center) {
