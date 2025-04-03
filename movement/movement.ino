@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <avr/io.h>
 // Motor driver pins
 #define ENA 5  // Right motor speed control
 #define ENB 6  // Left motor speed control
@@ -320,4 +321,26 @@ void orientation() {
 
 /* SUDO CODE
 
+car moves forward a certain distance to get to cell
+  meanwhile it is also checking to make sure it is straight/in line
+    cant use delay, need to use internal timer that runs seperate
+once it reaches the "supposed" center of the next cell
+  check forward
+    if wall, readjust to correct distance
+      check for left wall
+      if left wall rotate 90 right
+        check forward
+        if forward, rotate 90 right and go to next cell
+      if no left wall, rotate 90 left, go next cell
+    if no front wall, check left
+      if left wall, go to next cell
+      if no left wall, rotate 90 left and go next cell
+
+
 */
+
+void next_cell() {
+  forward();        //move forward
+  delay(3000);      //determines distance travelled. Affected by speed
+
+}
