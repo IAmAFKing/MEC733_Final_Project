@@ -40,6 +40,7 @@ float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
+unsigned long duration = 1400;  //duration to next cell
 
 void setup() {
   // Set motor control pins as outputs
@@ -86,7 +87,9 @@ void loop() {
 
   //orientation();
 
-  rotateL90();
+  //rotateL90();
+
+  next_cell();
 
   // Loop prevention
   while (true) {
@@ -294,32 +297,34 @@ Can test functionality with line tracker
 
 */
 
+// Keep center/straight
 void orientation() {
   look_left();
+  unsigned long startPause;
+  unsigned long endPause;
   ld = sense_dist();        //measure current distance
-  while(ld<30) {            //testing only
-    while (ld<center_range[0] || ld>center_range[1]) {    //outside range
-      if (ld<center_range[0]) {                           //too close to wall
-        backward();                                       //move a bit back
-        delay(50);
-        turn_right(63);                                   //turn out
-        delay(50);                                        //turn angle to fix alignment, may change
-        stop(5);
-      } else if (ld>center_range[1]) {
-        backward();
-        delay(50);
-        turn_left(63);
-        delay(50);
-        stop(5);
-      }
-      Serial.print("Test range ");
-      ld = sense_dist();                                  //test if still outside range
+  while (ld<center_range[0] || ld>center_range[1]) {    //outside range
+    if (ld<center_range[0]) {                           //too close to wall
+      startPause = millis();
+      backward();                                       //move a bit back
+      delay(50);
+      turn_right(63);                                   //turn out
+      delay(50);                                        //turn angle to fix alignment, may change
+      stop(5);
+      endPause = millis();
+      duration += (endPause-startPause);
+    } else if (ld>center_range[1]) {
+      backward();
+      delay(50);
+      turn_left(63);
+      delay(50);
+      stop(5);
     }
-    forward();
-    Serial.print("End ");
-    ld = sense_dist();
+    Serial.print("Test range ");
+    ld = sense_dist();                                  //test if still outside range
   }
-  stop(1000);
+  forward();
+  Serial.print("End ");
 }
 
 /* SUDO CODE
@@ -342,9 +347,16 @@ once it reaches the "supposed" center of the next cell
 
 */
 
+void follow_left() {
+
+}
+
 void next_cell() {
   forward();        //move forward
-  delay(1400);      //determines distance travelled. Affected by speed. difts are significant
+  unsigned long startTime = millis();
+  while (millis()-startTime < duration) {
+    orientation();
+  }
   stop(5);
 }
 
