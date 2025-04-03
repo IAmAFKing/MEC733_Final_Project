@@ -263,8 +263,12 @@ enters cell
   ik the line tracking is really wild with the turns, gonna need to change that
 as it enters, it checks dist to left wall
   adjusts to get closer to wanted distance
-    greater than expected, turn left until distance is going down
+    greater than expected, turn left, measure value, compare to previous value measured
+      keep turning until going down
+      go straight
+    less than expected, turn right, same as above
 
+Can test functionality with line tracker
 
 */
 void orientation() {
