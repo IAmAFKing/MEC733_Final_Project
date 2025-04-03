@@ -68,15 +68,12 @@ void setup() {
 }
 
 void loop() {
-  /* bool end_line=false;          //end of line tracking condition
+
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
-  Serial.println("DONE"); */
-
-  while(true) {
-    sense_dist();
-  }
+  Serial.println("DONE");
 
   // Loop prevention
   while (true) {
@@ -157,7 +154,7 @@ bool photosensor() {
     else {                              //enter search mode
       Serial.println(" search");
       // Check for black line at each turn interval
-      for (int i=0; i<2000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+      for (int i=0; i<500; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
         turn_left(63);
         check_val();
@@ -170,7 +167,7 @@ bool photosensor() {
       // Only check right if nothing was found on the left side
       // Repeat above steps
       if (!center) {
-        for (int i=0; i<4000; i++) {
+        for (int i=0; i<1000; i++) {
           turn_right(63);
           check_val();
           if (center) {
@@ -218,11 +215,15 @@ void check_error() {
   {
     Serial.println(" left turn");
     turn_left(0);                   //slower turn left to compensate
+    delay(120);
+    stop(5);
   }
   else if (right)
   {
     Serial.println(" right turn");
     turn_right(0);                  //slower turn right to compensate
+    delay(120);
+    stop(5);
   }
   else
   {
