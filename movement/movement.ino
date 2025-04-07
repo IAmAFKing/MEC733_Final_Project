@@ -8,7 +8,7 @@
 #define STBY 3 // Standby pin for enabling motor driver
 
 // Speed of the motors (0-255)
-int line_speed = 127;
+int line_speed = 103;
 int maze_speed = 63;
 
 // Photosensor pins
@@ -80,7 +80,7 @@ void loop() {
 
   bool end_line=false;          //end of line tracking condition
   while (!end_line) {
-    end_line = photosensor();   //start line tracking until condition is met
+    end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
   Serial.println("DONE");
   line = false;
@@ -130,20 +130,6 @@ void stop(int time) {
   delay(time);
 }
 
-/* void rotate_left() {
-  analogWrite(ENA, motor_speed);
-  analogWrite(ENB, motor_speed);
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-}
-
-void rotate_right() {
-  analogWrite(ENA, motor_speed);
-  analogWrite(ENB, motor_speed);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-} */
-
 void turn_left(int motor_speed, int speed2) {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, speed2);
@@ -159,7 +145,7 @@ void turn_right(int motor_speed, int speed2) {
 }
 
 //LINE TRACKING 
-bool photosensor() {
+bool photosensor(int speed) {
   check_val();                            //checks values of photosensors
 
   // Line-following logic
@@ -167,20 +153,20 @@ bool photosensor() {
   if (!(left && right)) {
     // When black line is near the center
     if (center) {
-      check_error();                    //checks for errors in how center it is
+      check_error(speed);                    //checks for errors in how center it is
     }
     // Black line completely on left side
     else if (left) {
       Serial.println(" left rotate");
-      turn_left(line_speed, line_speed);                    //rotate left to compensate
-      delay(25);
+      turn_left(speed, speed);                    //rotate left to compensate
+      delay(35);
       stop(5);
     }
     // Black line completely on right side
     else if (right) {
       Serial.println(" right rotate");
-      turn_right(line_speed, line_speed);                   //rotate right to compensate
-      delay(25);
+      turn_right(speed, speed);                   //rotate right to compensate
+      delay(35);
       stop(5);
     }
     // Black line nowhere to be found
@@ -189,7 +175,9 @@ bool photosensor() {
       // Check for black line at each turn interval
       for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
-        turn_left(line_speed, line_speed);
+        turn_left(speed, speed);
+        delay(35);
+        stop(5);
         check_val();
         if (center) {
           // Break out of search loop and resume line tracking
@@ -201,7 +189,9 @@ bool photosensor() {
       // Repeat above steps
       if (!center) {
         for (int i=0; i<2000; i++) {
-          turn_right(line_speed, line_speed);
+          turn_right(speed, speed);
+          delay(35);
+          stop(5);
           check_val();
           if (center) {
             stop(5);
@@ -250,25 +240,27 @@ void check_val() {
 }
 
 // Checking left or right errors when center detects the line
-void check_error() {
+void check_error(int speed) {
   if (left)
   {
     Serial.println(" left turn");
-    turn_left(line_speed, 0);                   //slower turn left to compensate
+    turn_left(speed, 0);                   //slower turn left to compensate
     delay(25);
     stop(5);
   }
   else if (right)
   {
     Serial.println(" right turn");
-    turn_right(line_speed, 0);                  //slower turn right to compensate
+    turn_right(speed, 0);                  //slower turn right to compensate
     delay(25);
     stop(5);
   }
   else
   {
     Serial.println(" forward");
-    forward(line_speed);                      //no error go straight ahead
+    forward(speed);                      //no error go straight ahead
+    delay(65);
+    stop(5);
   }
 }
 
@@ -402,6 +394,6 @@ void rotateR90() {
 void transition() {
   bool entered = false;
   while (!entered) {
-    entered = photosensor();
+    entered = photosensor(maze_speed);
   }
 }
