@@ -31,3 +31,4 @@ IN LAB:
     - [x] Get approximate cell distance in time delay
     - [x] 90 degree rotation in time delay
 - [x] Figure out internal timers
+- [ ] acrylic range from 600-750
