@@ -8,7 +8,8 @@
 #define STBY 3 // Standby pin for enabling motor driver
 
 // Speed of the motors (0-255)
-int motor_speed = 63;
+int line_speed = 127;
+int maze_speed = 63;
 
 // Photosensor pins
 #define RIGHT_SENSOR A0  
@@ -44,6 +45,8 @@ float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
 unsigned long duration_maze = 1450;  //duration to next cell
 unsigned long duration_enter = 700; //duration to enter maze
+bool left_wall = false;      //is there a wall to left
+bool front_wall = true;      //is there a wall in front
 
 void setup() {
   // Set motor control pins as outputs
@@ -75,15 +78,15 @@ void setup() {
 
 void loop() {
 
-  /* bool end_line=false;          //end of line tracking condition
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor();   //start line tracking until condition is met
   }
   Serial.println("DONE");
   line = false;
-  delay(3000); */
+  delay(3000);
 
-  //transition();
+  transition();
   
   /* look_left();
   while (true) {
@@ -95,7 +98,7 @@ void loop() {
 
   //rotateL90();
 
-  next_cell(duration_maze);
+  //next_cell(duration_maze);
 
   /* while(true) {
     check_val();
@@ -107,14 +110,14 @@ void loop() {
 }
 
 //MOVEMENT FUNCTIONS
-void forward() {
+void forward(int motor_speed) {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, HIGH);
 }
 
-void backward() {
+void backward(int motor_speed) {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, LOW);
@@ -141,14 +144,14 @@ void rotate_right() {
   digitalWrite(IN2, HIGH);
 } */
 
-void turn_left(int speed2) {
+void turn_left(int motor_speed, int speed2) {
   analogWrite(ENA, motor_speed);
   analogWrite(ENB, speed2);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
 }
 
-void turn_right(int speed2) {
+void turn_right(int motor_speed, int speed2) {
   analogWrite(ENA, speed2);
   analogWrite(ENB, motor_speed);
   digitalWrite(IN1, LOW);
@@ -158,13 +161,6 @@ void turn_right(int speed2) {
 //LINE TRACKING 
 bool photosensor() {
   check_val();                            //checks values of photosensors
-
-  Serial.print("Left sensor: ");
-  Serial.print(left_value);
-  Serial.print(" \t center sensor: ");
-  Serial.print(center_value);
-  Serial.print("\t right sensor: ");
-  Serial.print(right_value);
 
   // Line-following logic
   // Start line tracking if end condition is not met (reaches horizontal black line)
@@ -176,12 +172,16 @@ bool photosensor() {
     // Black line completely on left side
     else if (left) {
       Serial.println(" left rotate");
-      turn_left(63);                    //rotate left to compensate
+      turn_left(line_speed, line_speed);                    //rotate left to compensate
+      delay(25);
+      stop(5);
     }
     // Black line completely on right side
     else if (right) {
       Serial.println(" right rotate");
-      turn_right(63);                   //rotate right to compensate
+      turn_right(line_speed, line_speed);                   //rotate right to compensate
+      delay(25);
+      stop(5);
     }
     // Black line nowhere to be found
     else {                              //enter search mode
@@ -189,11 +189,11 @@ bool photosensor() {
       // Check for black line at each turn interval
       for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
-        turn_left(63);
+        turn_left(line_speed, line_speed);
         check_val();
         if (center) {
           // Break out of search loop and resume line tracking
-          stop(10);
+          stop(5);
           break;
         }
       }
@@ -201,10 +201,10 @@ bool photosensor() {
       // Repeat above steps
       if (!center) {
         for (int i=0; i<2000; i++) {
-          turn_right(63);
+          turn_right(line_speed, line_speed);
           check_val();
           if (center) {
-            stop(10);
+            stop(5);
             break;
           }
         }
@@ -221,7 +221,7 @@ bool photosensor() {
   // End condition where it reaches the horizontal black line
   // May need to be changed as starting position might have a black line too
   else {
-    stop(100);
+    stop(5);
     Serial.println();
     return true;        //end conition has been met
   }
@@ -237,9 +237,16 @@ void check_val() {
   center_value = analogRead(CENTER_SENSOR);
   
   // Black line range between 700 and 950. Record if the sensors detect something in that range
-  center = center_value >= 750 && center_value <= 950;
-  right = right_value >= 750 && right_value <= 950;
-  left = left_value >= 750 && left_value <= 950;
+  center = center_value >= 675 && center_value <= 950;
+  right = right_value >= 675 && right_value <= 950;
+  left = left_value >= 675 && left_value <= 950;
+
+  Serial.print("Left sensor: ");
+  Serial.print(left_value);
+  Serial.print(" \t center sensor: ");
+  Serial.print(center_value);
+  Serial.print("\t right sensor: ");
+  Serial.print(right_value);
 }
 
 // Checking left or right errors when center detects the line
@@ -247,21 +254,21 @@ void check_error() {
   if (left)
   {
     Serial.println(" left turn");
-    turn_left(0);                   //slower turn left to compensate
-    delay(120);
+    turn_left(line_speed, 0);                   //slower turn left to compensate
+    delay(25);
     stop(5);
   }
   else if (right)
   {
     Serial.println(" right turn");
-    turn_right(0);                  //slower turn right to compensate
-    delay(120);
+    turn_right(line_speed, 0);                  //slower turn right to compensate
+    delay(25);
     stop(5);
   }
   else
   {
     Serial.println(" forward");
-    forward();                      //no error go straight ahead
+    forward(line_speed);                      //no error go straight ahead
   }
 }
 
@@ -313,27 +320,28 @@ unsigned long orientation(unsigned long duration) {
   unsigned long startPause;
   unsigned long endPause;
   ld = sense_dist();                                    //measure current distance
+  
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
     startPause = millis();
     if (ld<center_range[0]) {                           //too close to wall
-      backward();                                       //move a bit back
+      backward(maze_speed);                                       //move a bit back
       delay(50);
-      turn_right(63);                                   //turn out
+      turn_right(maze_speed, maze_speed);                                   //turn out
       delay(50);                                        //turn angle to fix alignment, may change
       stop(5);            //adjustment factor moved
     } else if (ld>center_range[1]) {
-      backward();
+      backward(maze_speed);
       delay(50);
-      turn_left(63);
+      turn_left(maze_speed, maze_speed);
       delay(50);
       stop(5);
     }
     endPause = millis();
-    duration += endPause-startPause+75;                 //extend duration by time taken to readjust and a correction factor
+    duration += endPause-startPause+37;                 //extend duration by time taken to readjust and a correction factor
     Serial.print("Test range ");
     ld = sense_dist();                                  //test if still outside range
   }
-  forward();
+  forward(maze_speed);
   Serial.print("End ");
   return duration;
 }
@@ -362,8 +370,9 @@ void follow_left() {
 
 }
 
+// Move into the next cell while staying relatively straight 
 void next_cell(unsigned long duration) {
-  forward();        //move forward
+  forward(maze_speed);        //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
     duration = orientation(duration);
@@ -372,13 +381,13 @@ void next_cell(unsigned long duration) {
 }
 
 void rotateL90() {
-  turn_left(63);
+  turn_left(maze_speed, maze_speed);
   delay(1010);      //timing to reach 90
   stop(5);
 }
 
 void rotateR90() {
-  turn_right(63);
+  turn_right(maze_speed, maze_speed);
   delay(1010);      //timing to reach 90
   stop(5);
 }
