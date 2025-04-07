@@ -44,7 +44,7 @@ float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
 unsigned long duration_maze = 1450;  //duration to next cell
-unsigned long duration_enter = 700; //duration to enter maze
+unsigned long duration_enter = 1225; //duration to enter maze
 bool left_wall = false;      //is there a wall to left
 bool front_wall = true;      //is there a wall in front
 
@@ -98,7 +98,7 @@ void loop() {
 
   //rotateL90();
 
-  //next_cell(duration_maze);
+  //next_cell(duration_enter);
 
   /* while(true) {
     check_val();
@@ -393,7 +393,11 @@ void rotateR90() {
 */
 void transition() {
   bool entered = false;
+  forward(line_speed);
+  delay(100);
+  stop(5);
   while (!entered) {
     entered = photosensor(maze_speed);
   }
+  next_cell(duration_enter);
 }
