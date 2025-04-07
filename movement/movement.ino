@@ -43,7 +43,7 @@ float fd = 0;           //forward distance
 float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
 unsigned long duration_maze = 1450;  //duration to next cell
-unsigned long duration_enter = 1000; //duration to enter maze
+unsigned long duration_enter = 700; //duration to enter maze
 
 void setup() {
   // Set motor control pins as outputs
@@ -83,8 +83,7 @@ void loop() {
   line = false;
   delay(3000); */
 
-  line=false;
-  transition();
+  //transition();
   
   /* look_left();
   while (true) {
@@ -96,7 +95,7 @@ void loop() {
 
   //rotateL90();
 
-  //next_cell(duration_enter);
+  next_cell(duration_maze);
 
   /* while(true) {
     check_val();
@@ -309,7 +308,7 @@ Can test functionality with line tracker
 */
 
 // Keep center/straight
-void orientation(unsigned long duration) {
+unsigned long orientation(unsigned long duration) {
   look_left();
   unsigned long startPause;
   unsigned long endPause;
@@ -324,8 +323,7 @@ void orientation(unsigned long duration) {
       delay(50);                                        //turn angle to fix alignment, may change
       stop(5);
       endPause = millis();
-      duration += (endPause-startPause);
-      counter++;
+      duration += (endPause-startPause+55);             //adjustment factor moved
     } else if (ld>center_range[1]) {
       backward();
       delay(50);
@@ -335,10 +333,10 @@ void orientation(unsigned long duration) {
     }
     Serial.print("Test range ");
     ld = sense_dist();                                  //test if still outside range
-  }
-  duration += counter*55;                               //correction factor
+  }                              //correction factor
   forward();
   Serial.print("End ");
+  return duration;
 }
 
 /* SUDO CODE
@@ -369,7 +367,7 @@ void next_cell(unsigned long duration) {
   forward();        //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
-    orientation(duration);
+    duration = orientation(duration);
   }
   stop(5);
 }
