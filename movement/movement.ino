@@ -312,18 +312,15 @@ unsigned long orientation(unsigned long duration) {
   look_left();
   unsigned long startPause;
   unsigned long endPause;
-  int counter=0;
   ld = sense_dist();                                    //measure current distance
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
+    startPause = millis();
     if (ld<center_range[0]) {                           //too close to wall
-      startPause = millis();
       backward();                                       //move a bit back
       delay(50);
       turn_right(63);                                   //turn out
       delay(50);                                        //turn angle to fix alignment, may change
-      stop(5);
-      endPause = millis();
-      duration += (endPause-startPause+55);             //adjustment factor moved
+      stop(5);            //adjustment factor moved
     } else if (ld>center_range[1]) {
       backward();
       delay(50);
@@ -331,9 +328,11 @@ unsigned long orientation(unsigned long duration) {
       delay(50);
       stop(5);
     }
+    endPause = millis();
+    duration += endPause-startPause+75;                 //extend duration by time taken to readjust and a correction factor
     Serial.print("Test range ");
     ld = sense_dist();                                  //test if still outside range
-  }                              //correction factor
+  }
   forward();
   Serial.print("End ");
   return duration;
