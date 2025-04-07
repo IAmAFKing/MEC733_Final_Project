@@ -77,7 +77,7 @@ void loop() {
 
   /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
-    end_line = photosensor(line);   //start line tracking until condition is met
+    end_line = photosensor();   //start line tracking until condition is met
   }
   Serial.println("DONE");
   line = false;
@@ -97,6 +97,10 @@ void loop() {
   //rotateL90();
 
   //next_cell(duration_enter);
+
+  /* while(true) {
+    check_val();
+  } */
 
   // Loop prevention
   while (true) {
@@ -153,7 +157,7 @@ void turn_right(int speed2) {
 }
 
 //LINE TRACKING 
-bool photosensor(bool line) {
+bool photosensor() {
   check_val();                            //checks values of photosensors
 
   Serial.print("Left sensor: ");
@@ -182,21 +186,17 @@ bool photosensor(bool line) {
     }
     // Black line nowhere to be found
     else {                              //enter search mode
-      if (line) {
-        Serial.println(" search");
-        // Check for black line at each turn interval
-        for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
-          // Trurn a bit and check sensor values
-          turn_left(63);
-          check_val();
-          if (center) {
-            // Break out of search loop and resume line tracking
-            stop(10);
-            break;
-          }
+      Serial.println(" search");
+      // Check for black line at each turn interval
+      for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+        // Trurn a bit and check sensor values
+        turn_left(63);
+        check_val();
+        if (center) {
+          // Break out of search loop and resume line tracking
+          stop(10);
+          break;
         }
-      } else {
-        return true;
       }
       // Only check right if nothing was found on the left side
       // Repeat above steps
@@ -238,9 +238,9 @@ void check_val() {
   center_value = analogRead(CENTER_SENSOR);
   
   // Black line range between 700 and 950. Record if the sensors detect something in that range
-  center = center_value >= 700 && center_value <= 950;
-  right = right_value >= 700 && right_value <= 950;
-  left = left_value >= 700 && left_value <= 950;
+  center = center_value >= 750 && center_value <= 950;
+  right = right_value >= 750 && right_value <= 950;
+  left = left_value >= 750 && left_value <= 950;
 }
 
 // Checking left or right errors when center detects the line
@@ -396,6 +396,6 @@ void rotateR90() {
 void transition() {
   bool entered = false;
   while (!entered) {
-    photosensor(line);
+    entered = photosensor();
   }
 }
