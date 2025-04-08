@@ -45,8 +45,8 @@ float stop_dist = 2;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
 unsigned long duration_maze = 1450;  //duration to next cell
 unsigned long duration_enter = 1225; //duration to enter maze
-bool left_wall = false;      //is there a wall to left
-bool front_wall = true;      //is there a wall in front
+bool left_wall = true;      //is there a wall to left (assume to be true at first)
+bool front_wall = false;      //is there a wall in front
 
 void setup() {
   // Set motor control pins as outputs
@@ -78,7 +78,7 @@ void setup() {
 
 void loop() {
 
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
@@ -86,7 +86,7 @@ void loop() {
   line = false;
   delay(3000);
 
-  transition();
+  transition(); */
   
   /* look_left();
   while (true) {
@@ -98,7 +98,7 @@ void loop() {
 
   //rotateL90();
 
-  //next_cell(duration_enter);
+  next_cell(duration_maze);
 
   /* while(true) {
     check_val();
@@ -314,27 +314,32 @@ unsigned long orientation(unsigned long duration) {
   ld = sense_dist();                                    //measure current distance
   
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
-    startPause = millis();
-    if (ld<center_range[0]) {                           //too close to wall
-      backward(maze_speed);                                       //move a bit back
-      delay(50);
-      turn_right(maze_speed, maze_speed);                                   //turn out
-      delay(50);                                        //turn angle to fix alignment, may change
-      stop(5);            //adjustment factor moved
-    } else if (ld>center_range[1]) {
-      backward(maze_speed);
-      delay(50);
-      turn_left(maze_speed, maze_speed);
-      delay(50);
-      stop(5);
+    if (ld>center_range[1]+1) {                         //no wall to left in maze
+      left_wall = false;
+      break;
+    } else {
+      left_wall = true;
+      startPause = millis();
+      if (ld<center_range[0]) {                           //too close to wall
+        backward(maze_speed);                                       //move a bit back
+        delay(50);
+        turn_right(maze_speed, maze_speed);                                   //turn out
+        delay(50);                                        //turn angle to fix alignment, may change
+        stop(5);            //adjustment factor moved
+      } else if (ld>center_range[1]) {
+        backward(maze_speed);
+        delay(50);
+        turn_left(maze_speed, maze_speed);
+        delay(50);
+        stop(5);
+      }
+      endPause = millis();
+      duration += endPause-startPause+37;                 //extend duration by time taken to readjust and a correction factor
+      Serial.print("Test range ");
+      ld = sense_dist();                                  //test if still outside range
     }
-    endPause = millis();
-    duration += endPause-startPause+37;                 //extend duration by time taken to readjust and a correction factor
-    Serial.print("Test range ");
-    ld = sense_dist();                                  //test if still outside range
   }
   forward(maze_speed);
-  Serial.print("End ");
   return duration;
 }
 
@@ -367,7 +372,11 @@ void next_cell(unsigned long duration) {
   forward(maze_speed);        //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
-    duration = orientation(duration);
+    if (left_wall) {                        //keep itself straight
+      duration = orientation(duration);
+    } else {
+      forward(maze_speed);                  //hope it stays straight without left wall
+    }
   }
   stop(5);
 }
