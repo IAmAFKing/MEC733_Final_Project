@@ -15,8 +15,21 @@
 - [x] Sudo and skeleton code for distance between maze cells
     - Figure out internal timers
 - [x] Maze solving algorithm skeleton
-- [ ] Transition between line tracking and maze
+- [x] Transition between line tracking and maze
+    - [x] Use line tracking at first
+    - [x] Next cell function with shorter entry time. Account for overshoot
 - [ ] Actual algorithm and solution
+- [x] Problem: Left wall tracking to keep center will fail if there is no left wall
+    - how detection works: too far right correction applied
+    - will it turn, how to stop detection: car should never shoot past 18cm, use that as the benchmark for having no wall
+- [x] Reduce turning radius for line tracking
+- [x] Issues with over shooting line
+    - Was an issue with the photosensor logic. Reading were higher than 950
+- [ ] Issue if the car gets to the end of the maze but still follows left wall
+    - Add position and direction tracker
+- [ ] rotation timing getting worse, may be because of weak battery
+- [ ] Test 3 cells
+- [ ] Test boxed in
 
 IN LAB:
 - [x] Tune turning adjustments for line tracking
@@ -31,4 +44,4 @@ IN LAB:
     - [x] Get approximate cell distance in time delay
     - [x] 90 degree rotation in time delay
 - [x] Figure out internal timers
-- [ ] acrylic range from 600-750
+- [x] acrylic range from 600-750
