@@ -327,7 +327,7 @@ unsigned long orientation(unsigned long duration) {
   
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
     if (ld>center_range[1]+2) {                         //no wall to left in maze
-      left_wall = false;
+      left_wall = false;                                //dont try to correct
       break;
     } else {
       left_wall = true;
@@ -437,11 +437,7 @@ void next_cell(unsigned long duration) {
   forward(maze_speed);        //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
-    if (left_wall) {                        //keep itself straight
-      duration = orientation(duration);
-    } else {
-      forward(maze_speed);                  //hope it stays straight without left wall
-    }
+    duration = orientation(duration);       //keep itself straight
   }
   stop(5);
   moved = true;
