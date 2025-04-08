@@ -51,8 +51,8 @@ bool front_wall = false;      //is there a wall in front
 // Maze stuff
 int position[2] = {4,1};      //position in maze
 int direction = 1;            //direction it is facing; 1-N, 2-W, 3-S, 4/0-E. Mod 4 to get direction
-int recusrion = 1;            //how many times to repeat recursion (testing only)
-bool end_maze = false;        //has the end of the maze been reached
+int recursion = 1;            //how many times to repeat recursion (testing only)
+bool maze_finished = false;        //has the end of the maze been reached
 
 void setup() {
   // Set motor control pins as outputs
@@ -95,11 +95,17 @@ void loop() {
 
   transition();
   Serial.println("MAZE START");
+  //Check left wall first which has already been done while moving to next cell
   if (!left_wall) {
-    Serial.println("No left wall");
     rotateL90();              //turn left if there is no left wall
     direction += 1;           //updating direction
     next_cell(duration_maze);    //go to next cell
+    check_end();
+  } 
+  //Check front wall
+  else if (look_fw() && sense_dist() > stop_dist+20) {
+    front_wall = false;             //no front wall within stop distance + marign for error
+    next_cell(duration_maze);
     check_end();
   }
   
@@ -279,8 +285,9 @@ void check_error(int speed) {
 }
 
 //SERVO MOVEMENT
-void look_fw() {
+bool look_fw() {
   servo.write(55);
+  return true;
 }
 
 void look_left() {
@@ -378,47 +385,47 @@ once it reaches the "supposed" center of the next cell
 */
 
 void follow_left() {
-  //Check left wall first which has already been done while moving to next cell
-  if (!left_wall) {
-    rotateL90();              //turn left if there is no left wall
-    direction += 1;           //updating direction
-    next_cell(duration_maze);    //go to next cell
-    check_end();
+  while (!maze_finished) {
+    //Check left wall first which has already been done while moving to next cell
+    if (!left_wall) {
+      rotateL90();              //turn left if there is no left wall
+      direction += 1;           //updating direction
+      next_cell(duration_maze);    //go to next cell
+      check_end();
+    } 
+    //Check front wall
+    else if (look_fw() && sense_dist() > stop_dist+20) {
+      front_wall = false;             //no front wall within stop distance + marign for error
+      next_cell(duration_maze);
+      check_end();
+    }
+    //Readjust
+    /* else if (sense_dist() < stop_dist+20) {
+      front_wall = true;                //there is a wall in front
+      while (sense_dist() <= stop_dist-2) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
+        backward(maze_speed);
+        delay(25);
+        stop(5);
+      }
+      while (sense_dist() > stop_dist) {       //a little back behind the stop distance
+        forward(maze_speed);
+        delay(25);
+        stop(5);
+      }
+    } */
+    //Check right wall
+    else if (rotateR90 && sense_dist() > stop_dist+20) {
+      front_wall = false;             //no right wall (relative to starting position)
+      next_cell(duration_maze);
+      check_end();
+    }
+    //Blocked on all 3 sides
+    else {
+      rotateR90();
+      next_cell(duration_maze);
+      check_end();
+    }
   }
-
-  //Check front wall
-  look_fw();
-  float front = sense_dist();
-  if (front > stop_dist+20) {
-    front_wall = false;             //no front wall within stop distance + marign for error
-    next_cell(duration_maze);
-    check_end();
-  }
-  front_wall = true;                //there is a wall in front
-  /* while (front <= stop_dist-2) {    //recenter if too close to wall
-    backward(maze_speed);
-    delay(25);
-    stop(5);
-  }
-  while (front > stop_dist) {       //a little back behind the stop distance
-    forward(maze_speed);
-    delay(25);
-    stop(5);
-  } */
-
-  //Check right wall
-  rotateR90();
-  float right = sense_dist();
-  if (right > stop_dist+2) {
-    front_wall = false;             //no right wall (relative to starting position)
-    next_cell(duration_maze);
-    check_end();
-  }
-
-  //Blocked on all 3 sides
-  rotateR90();
-  next_cell(duration_maze);
-  check_end();
 }
 
 // Move into the next cell while staying relatively straight 
@@ -441,10 +448,11 @@ void rotateL90() {
   stop(5);
 }
 
-void rotateR90() {
+bool rotateR90() {
   turn_right(maze_speed, maze_speed);
   delay(1175);      //timing to reach 90
   stop(5);
+  return true;
 }
 // Moving between line tracking and maze
 
@@ -468,17 +476,18 @@ void transition() {
 void check_end() {
   check_val();                      //check if it has reach the end ramp
   Serial.println();
-  if (recusrion == 0) { //Use left && center && right. Currently for testing
+  if (recursion == 0) { //Use !left && !center && !right. Currently for testing
     end_maze();                     //it has reached the end
   } else {
-    recusrion -= 1;
-    follow_left();                  //recursively call the function
+    recursion -= 1;
+    return;
   }
 }
 
 void end_maze() {
   //forward(line_speed);
   Serial.println("MAZE COMPLETE");
+  maze_finished = true;
   delay(1000);
   stop(5);
 }
