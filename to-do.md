@@ -27,9 +27,20 @@
     - Was an issue with the photosensor logic. Reading were higher than 950
 - [ ] Issue if the car gets to the end of the maze but still follows left wall
     - Add position and direction tracker
-- [ ] rotation timing getting worse, may be because of weak battery
+- [x] rotation timing getting worse, may be because of weak battery
+    - yes
 - [ ] Test 3 cells
 - [ ] Test boxed in
+
+IN LAB 2:
+- [ ] Rotation timing
+- [ ] Next cell timing
+- [ ] Test 3 instruction alg
+    - [ ] Turn right
+    - [ ] Boxed in
+- [ ] Testing adjustments
+- [ ] Test full maze
+- [ ] Location awareness maybe
 
 IN LAB:
 - [x] Tune turning adjustments for line tracking
