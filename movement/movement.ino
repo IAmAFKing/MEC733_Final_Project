@@ -51,7 +51,7 @@ bool front_wall = false;      //is there a wall in front
 // Maze stuff
 int position[2] = {4,1};      //position in maze
 int direction = 1;            //direction it is facing; 1-N, 2-W, 3-S, 4/0-E. Mod 4 to get direction
-int recursion = 1;            //how many times to repeat recursion (testing only)
+int recursion = 2;            //how many times to repeat recursion (testing only)
 bool maze_finished = false;        //has the end of the maze been reached
 bool moved = false;
 
@@ -381,6 +381,7 @@ void follow_left() {
     //Check left wall first which has already been done while moving to next cell
     look_left();
     if (sense_dist() > 19) {
+      Serial.println("No left");
       rotateL90();              //turn left if there is no left wall
       direction += 1;           //updating direction
       next_cell(duration_maze);    //go to next cell
@@ -390,6 +391,7 @@ void follow_left() {
     if (!moved) {
       look_fw();
       if (sense_dist() > stop_dist+20) {
+        Serial.println("No front wall");
         front_wall = false;             //no front wall within stop distance + marign for error
         next_cell(duration_maze);
         check_end();
@@ -411,14 +413,16 @@ void follow_left() {
     }
     //Check right wall
     if (!moved) {
-      rotateR90; 
+      rotateR90(); 
       if (sense_dist() > stop_dist+20) {
+        Serial.println("No right wall");
         front_wall = false;             //no right wall (relative to starting position)
         next_cell(duration_maze);
         check_end();
       }
       //Blocked on all 3 sides
       else {
+        Serial.println("Boxed in");
         rotateR90();
         next_cell(duration_maze);
         check_end();
@@ -445,13 +449,13 @@ void next_cell(unsigned long duration) {
 
 void rotateL90() {
   turn_left(maze_speed, maze_speed);
-  delay(1400);      //timing to reach 90. 1010, timing might change with power in battery?
+  delay(1170);      //timing to reach 90. 1010, timing might change with power in battery?
   stop(5);
 }
 
 bool rotateR90() {
   turn_right(maze_speed, maze_speed);
-  delay(1175);      //timing to reach 90
+  delay(1170);      //timing to reach 90
   stop(5);
   return true;
 }
