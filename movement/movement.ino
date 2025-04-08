@@ -41,7 +41,7 @@ Servo servo;
 float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
-float stop_dist = 2;    //stopping distance
+float stop_dist = 5;    //stopping distance
 float center_range[2] = {11.0,17.0}; //distance from wall
 unsigned long duration_maze = 1450;  //duration to next cell
 unsigned long duration_enter = 1225; //duration to enter maze
@@ -82,13 +82,14 @@ void loop() {
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
-  Serial.println("DONE");
+  Serial.println("LINE DONE");
   line = false;
   delay(3000);
 
   transition();
+  Serial.println("MAZE START");
 
-  next_cell(duration_maze);
+  //next_cell(duration_maze);
   
   /* look_left();
   while (true) {
@@ -227,9 +228,9 @@ void check_val() {
   center_value = analogRead(CENTER_SENSOR);
   
   // Black line range between 700 and 950. Record if the sensors detect something in that range
-  center = center_value >= 675 && center_value <= 950;
-  right = right_value >= 675 && right_value <= 950;
-  left = left_value >= 675 && left_value <= 950;
+  center = center_value >= 675;
+  right = right_value >= 675;
+  left = left_value >= 675;
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -259,7 +260,7 @@ void check_error(int speed) {
   {
     Serial.println(" forward");
     forward(speed);                      //no error go straight ahead
-    delay(65);
+    delay(60);
     stop(5);
   }
 }
@@ -364,6 +365,39 @@ once it reaches the "supposed" center of the next cell
 */
 
 void follow_left() {
+  //Check left wall first which has already been done while moving to next cell
+  if (!left_wall) {
+    rotateL90();              //turn left if there is no left wall
+    next_cell(maze_speed);    //go to next cell
+    check_end();
+  }
+
+  //Check front wall
+  look_fw();
+  float front = sense_dist();
+  if (front > stop_dist+2) {
+    front_wall = false;             //no front wall
+    next_cell(maze_speed);
+    check_end();
+  }
+  front_wall = true;              //there is a wall in front
+  while (front <= stop_dist-2) {  //recenter
+    backward(maze_speed);
+    delay(25);
+    stop(5);
+  }
+
+  //Check right wall
+  rotateR90();
+  float right = sense_dist();
+  if (right > stop_dist+2) {
+    front_wall = false;             //no right wall (relative to starting position)
+    next_cell(maze_speed);
+    check_end();
+  }
+
+  //Blocked on all 3 sides
+
 
 }
 
@@ -409,4 +443,19 @@ void transition() {
     entered = photosensor(maze_speed);
   }
   next_cell(duration_enter);
+}
+
+void check_end() {
+  check_val();                      //check if it has reach the end ramp
+  if (left && center && right) { 
+    end_maze();                     //it has reached the end
+  } else {
+    follow_left();                  //recursively call the function
+  }
+}
+
+void end_maze() {
+  forward(line_speed);
+  delay(1000);
+  stop(5);
 }
