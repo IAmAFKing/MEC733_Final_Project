@@ -48,6 +48,12 @@ unsigned long duration_enter = 1225; //duration to enter maze
 bool left_wall = true;      //is there a wall to left (assume to be true at first)
 bool front_wall = false;      //is there a wall in front
 
+// Maze stuff
+int position[2] = {4,1};      //position in maze
+int direction = 1;            //direction it is facing; 1-N, 2-W, 3-S, 4/0-E. Mod 4 to get direction
+int recusrion = 1;            //how many times to repeat recursion (testing only)
+bool end_maze = false;        //has the end of the maze been reached
+
 void setup() {
   // Set motor control pins as outputs
   pinMode(IN1, OUTPUT);
@@ -67,6 +73,7 @@ void setup() {
   // Set servo as output
   servo.attach(SRV);
   pinMode(SRV, OUTPUT);
+  look_left();
 
   // Set ultrasonic pins
   pinMode(echo, INPUT);
@@ -78,20 +85,26 @@ void setup() {
 
 void loop() {
 
-  bool end_line=false;          //end of line tracking condition
+  /* bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
   Serial.println("LINE DONE");
   line = false;
-  delay(3000);
+  delay(3000); */
 
   transition();
   Serial.println("MAZE START");
-
-  //next_cell(duration_maze);
+  if (!left_wall) {
+    Serial.println("No left wall");
+    rotateL90();              //turn left if there is no left wall
+    direction += 1;           //updating direction
+    next_cell(duration_maze);    //go to next cell
+    check_end();
+  }
   
-  /* look_left();
+  
+  /* look_fw();
   while (true) {
     sense_dist();
     delay(1000);
@@ -368,37 +381,44 @@ void follow_left() {
   //Check left wall first which has already been done while moving to next cell
   if (!left_wall) {
     rotateL90();              //turn left if there is no left wall
-    next_cell(maze_speed);    //go to next cell
+    direction += 1;           //updating direction
+    next_cell(duration_maze);    //go to next cell
     check_end();
   }
 
   //Check front wall
   look_fw();
   float front = sense_dist();
-  if (front > stop_dist+2) {
-    front_wall = false;             //no front wall
-    next_cell(maze_speed);
+  if (front > stop_dist+20) {
+    front_wall = false;             //no front wall within stop distance + marign for error
+    next_cell(duration_maze);
     check_end();
   }
-  front_wall = true;              //there is a wall in front
-  while (front <= stop_dist-2) {  //recenter
+  front_wall = true;                //there is a wall in front
+  /* while (front <= stop_dist-2) {    //recenter if too close to wall
     backward(maze_speed);
     delay(25);
     stop(5);
   }
+  while (front > stop_dist) {       //a little back behind the stop distance
+    forward(maze_speed);
+    delay(25);
+    stop(5);
+  } */
 
   //Check right wall
   rotateR90();
   float right = sense_dist();
   if (right > stop_dist+2) {
     front_wall = false;             //no right wall (relative to starting position)
-    next_cell(maze_speed);
+    next_cell(duration_maze);
     check_end();
   }
 
   //Blocked on all 3 sides
-
-
+  rotateR90();
+  next_cell(duration_maze);
+  check_end();
 }
 
 // Move into the next cell while staying relatively straight 
@@ -417,13 +437,13 @@ void next_cell(unsigned long duration) {
 
 void rotateL90() {
   turn_left(maze_speed, maze_speed);
-  delay(1010);      //timing to reach 90
+  delay(1175);      //timing to reach 90. 1010, timing might change with power in battery?
   stop(5);
 }
 
 void rotateR90() {
   turn_right(maze_speed, maze_speed);
-  delay(1010);      //timing to reach 90
+  delay(1175);      //timing to reach 90
   stop(5);
 }
 // Moving between line tracking and maze
@@ -447,15 +467,18 @@ void transition() {
 
 void check_end() {
   check_val();                      //check if it has reach the end ramp
-  if (left && center && right) { 
+  Serial.println();
+  if (recusrion == 0) { //Use left && center && right. Currently for testing
     end_maze();                     //it has reached the end
   } else {
+    recusrion -= 1;
     follow_left();                  //recursively call the function
   }
 }
 
 void end_maze() {
-  forward(line_speed);
+  //forward(line_speed);
+  Serial.println("MAZE COMPLETE");
   delay(1000);
   stop(5);
 }
