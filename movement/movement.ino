@@ -78,7 +78,7 @@ void setup() {
 
 void loop() {
 
-  /* bool end_line=false;          //end of line tracking condition
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
@@ -86,7 +86,9 @@ void loop() {
   line = false;
   delay(3000);
 
-  transition(); */
+  transition();
+
+  next_cell(duration_maze);
   
   /* look_left();
   while (true) {
@@ -97,8 +99,6 @@ void loop() {
   //orientation();
 
   //rotateL90();
-
-  next_cell(duration_maze);
 
   /* while(true) {
     check_val();
