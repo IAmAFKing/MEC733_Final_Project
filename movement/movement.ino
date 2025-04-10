@@ -97,7 +97,7 @@ void loop() {
   // transition();
   // Serial.println("MAZE START");
 
-  follow_left();
+  //follow_left();
   
   /* look_fw();
   while (true) {
@@ -107,7 +107,8 @@ void loop() {
 
   //orientation();
 
-  //rotateL90();
+  rotateL90();
+  next_cell(duration_maze);
 
   /* while(true) {
     check_val();
@@ -445,13 +446,13 @@ void next_cell(unsigned long duration) {
 
 void rotateL90() {
   turn_left(maze_speed, maze_speed);
-  delay(1170);      //timing to reach 90. 1010, timing might change with power in battery?
+  delay(1150);      //timing to reach 90. 1010, timing might change with power in battery?
   stop(5);
 }
 
 bool rotateR90() {
   turn_right(maze_speed, maze_speed);
-  delay(1170);      //timing to reach 90
+  delay(1150);      //timing to reach 90
   stop(5);
   return true;
 }
