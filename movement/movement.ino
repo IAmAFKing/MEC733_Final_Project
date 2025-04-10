@@ -43,8 +43,8 @@ float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 5;    //stopping distance
 float center_range[2] = {11.0,16.5}; //distance from wall
-unsigned long duration_maze = 1450;  //duration to next cell
-unsigned long duration_enter = 1250; //duration to enter maze
+unsigned long duration_maze = 1250;  //duration to next cell
+unsigned long duration_enter = 1050; //duration to enter maze
 bool left_wall = true;      //is there a wall to left (assume to be true at first)
 bool front_wall = false;      //is there a wall in front
 
@@ -86,7 +86,7 @@ void setup() {
 
 void loop() {
 
-  /* bool end_line=false;          //end of line tracking condition
+  bool end_line=false;          //end of line tracking condition
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
@@ -95,7 +95,7 @@ void loop() {
   delay(3000);
 
   transition();
-  Serial.println("MAZE START"); */
+  Serial.println("MAZE START");
 
   follow_left();
   
@@ -404,7 +404,7 @@ void follow_left() {
       //Readjust
       else if (sense_dist() < stop_dist+20) {
         front_wall = true;                //there is a wall in front
-        while (sense_dist() <= stop_dist-2) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
+        while (sense_dist() <= stop_dist-1) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
           backward(maze_speed);
           delay(50);
           stop(5);
@@ -482,11 +482,11 @@ void transition() {
 void check_end() {
   check_val();                      //check if it has reach the end ramp
   Serial.println();
-  /* if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
+  if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
     end_maze();                     //it has reached the end
   } else {
     return;
-  } */
+  }
 }
 
 void end_maze() {
@@ -496,5 +496,6 @@ void end_maze() {
     forward(line_speed);
     orientation(10);
   }
+  delay(100);
   stop(5) ;
 }
