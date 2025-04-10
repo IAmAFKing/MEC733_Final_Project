@@ -4,9 +4,55 @@
     - what is the fastest forward speed
 - [x] End line condition
     - Weird bug with it turning when it reaches the end
-- [ ] Push to main
-- [ ] Servo code
-- [ ] Ultra sonic
-- [ ] Set up maze
-- [ ] Orientation
-- [ ] Tune turning adjustments
+- [x] Push to main
+- [x] Servo code
+- [x] Ultra sonic
+- [x] Set up maze
+- [x] Orientation
+    - Center range affects the angle the car can approach from before going backwards
+    - Prefer if it is as tight as possible, testing needed from maze and what angles the car would reasonably approach from
+- [x] Tune turning adjustments
+- [x] Sudo and skeleton code for distance between maze cells
+    - Figure out internal timers
+- [x] Maze solving algorithm skeleton
+- [x] Transition between line tracking and maze
+    - [x] Use line tracking at first
+    - [x] Next cell function with shorter entry time. Account for overshoot
+- [ ] Actual algorithm and solution
+- [x] Problem: Left wall tracking to keep center will fail if there is no left wall
+    - how detection works: too far right correction applied
+    - will it turn, how to stop detection: car should never shoot past 18cm, use that as the benchmark for having no wall
+- [x] Reduce turning radius for line tracking
+- [x] Issues with over shooting line
+    - Was an issue with the photosensor logic. Reading were higher than 950
+- [ ] Issue if the car gets to the end of the maze but still follows left wall
+    - Add position and direction tracker
+- [x] rotation timing getting worse, may be because of weak battery
+    - yes
+- [ ] Test 3 cells
+- [ ] Test boxed in
+
+IN LAB 2:
+- [ ] Rotation timing
+- [ ] Next cell timing
+- [ ] Test 3 instruction alg
+    - [ ] Turn right
+    - [ ] Boxed in
+- [ ] Testing adjustments
+- [ ] Test full maze
+- [ ] Location awareness maybe
+
+IN LAB:
+- [x] Tune turning adjustments for line tracking
+- [x] Determine how each tasks starts
+    - If line tracking starts on horizontal black line, some code needs to be changed
+    - Distance from end of line tracking to first maze cell
+        - Can touch between tasks?
+    - No starting black line
+    - Can follow black line after finishing to get to start of maze
+- [x] Tune center bounds
+- [x] Start maze movements
+    - [x] Get approximate cell distance in time delay
+    - [x] 90 degree rotation in time delay
+- [x] Figure out internal timers
+- [x] acrylic range from 600-750
