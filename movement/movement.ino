@@ -42,8 +42,8 @@ float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 5;    //stopping distance
-float center_range[2] = {11.0,16.0}; //distance from wall
-unsigned long duration_maze = 1400;  //duration to next cell
+float center_range[2] = {11.0,16.5}; //distance from wall
+unsigned long duration_maze = 1450;  //duration to next cell
 unsigned long duration_enter = 1250; //duration to enter maze
 bool left_wall = true;      //is there a wall to left (assume to be true at first)
 bool front_wall = false;      //is there a wall in front
@@ -104,8 +104,6 @@ void loop() {
     sense_dist();
     delay(1000);
   } */
-
-  //orientation();
 
   //rotateL90();
   //next_cell(duration_maze);
@@ -331,25 +329,29 @@ unsigned long orientation(unsigned long duration) {
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
     if (ld>center_range[1]+2) {                         //no wall to left in maze
       left_wall = false;                                //dont try to correct
+      duration += 30;
       break;
     } else {
       left_wall = true;
-      startPause = millis();
       if (ld<center_range[0]) {                           //too close to wall
+        startPause = millis();
         backward(maze_speed);                                       //move a bit back
         delay(75);
         turn_right(maze_speed, maze_speed);                                   //turn out
-        delay(50);                                        //turn angle to fix alignment, may change
-        stop(5);            //adjustment factor moved
+        delay(75);                                        //turn angle to fix alignment, may change
+        stop(5);
+        endPause = millis();
+        duration += (endPause-startPause)+105;                 //extend duration by time taken to readjust and a correction factor
       } else if (ld>center_range[1]) {
+        startPause = millis();
         backward(maze_speed);
         delay(75);
         turn_left(maze_speed, maze_speed);
         delay(50);
         stop(5);
+        endPause = millis();
+        duration += (endPause-startPause)+110;                 //extend duration by time taken to readjust and a correction factor
       }
-      endPause = millis();
-      duration += endPause-startPause+45;                 //extend duration by time taken to readjust and a correction factor
       Serial.print("Test range ");
       ld = sense_dist();                                  //test if still outside range
     }
@@ -400,7 +402,7 @@ void follow_left() {
         check_end();
       }
       //Readjust
-      else if (sense_dist() < stop_dist+15) {
+      else if (sense_dist() < stop_dist+20) {
         front_wall = true;                //there is a wall in front
         while (sense_dist() <= stop_dist-2) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
           backward(maze_speed);
@@ -480,17 +482,19 @@ void transition() {
 void check_end() {
   check_val();                      //check if it has reach the end ramp
   Serial.println();
-  if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
+  /* if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
     end_maze();                     //it has reached the end
   } else {
     return;
-  }
+  } */
 }
 
 void end_maze() {
-  forward(line_speed);
   Serial.println("MAZE COMPLETE");
   maze_finished = true;
-  delay(2000);
-  stop(5);
+  while (left_wall) {
+    forward(line_speed);
+    orientation(10);
+  }
+  stop(5) ;
 }
