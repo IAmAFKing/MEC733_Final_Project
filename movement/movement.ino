@@ -42,9 +42,9 @@ float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
 float stop_dist = 5;    //stopping distance
-float center_range[2] = {11.0,17.0}; //distance from wall
-unsigned long duration_maze = 1450;  //duration to next cell
-unsigned long duration_enter = 1400; //duration to enter maze
+float center_range[2] = {11.0,16.0}; //distance from wall
+unsigned long duration_maze = 1400;  //duration to next cell
+unsigned long duration_enter = 1250; //duration to enter maze
 bool left_wall = true;      //is there a wall to left (assume to be true at first)
 bool front_wall = false;      //is there a wall in front
 
@@ -92,12 +92,12 @@ void loop() {
   }
   Serial.println("LINE DONE");
   line = false;
-  delay(3000); */
+  delay(3000);
 
-  // transition();
-  // Serial.println("MAZE START");
+  transition();
+  Serial.println("MAZE START"); */
 
-  //follow_left();
+  follow_left();
   
   /* look_fw();
   while (true) {
@@ -107,11 +107,13 @@ void loop() {
 
   //orientation();
 
-  rotateL90();
-  next_cell(duration_maze);
+  //rotateL90();
+  //next_cell(duration_maze);
 
   /* while(true) {
     check_val();
+    Serial.println();
+    delay(500); 
   } */
 
   // Loop prevention
@@ -183,7 +185,7 @@ bool photosensor(int speed) {
     else {                              //enter search mode
       Serial.println(" search");
       // Check for black line at each turn interval
-      for (int i=0; i<1000; i++) {      //2000 gives a wide enough search radius. Can be reduced
+      for (int i=0; i<500; i++) {      //2000 gives a wide enough search radius. Can be reduced
         // Trurn a bit and check sensor values
         turn_left(speed, speed);
         delay(35);
@@ -198,7 +200,7 @@ bool photosensor(int speed) {
       // Only check right if nothing was found on the left side
       // Repeat above steps
       if (!center) {
-        for (int i=0; i<2000; i++) {
+        for (int i=0; i<1000; i++) {
           turn_right(speed, speed);
           delay(35);
           stop(5);
@@ -237,9 +239,9 @@ void check_val() {
   center_value = analogRead(CENTER_SENSOR);
   
   // Black line range between 700 and 950. Record if the sensors detect something in that range
-  center = center_value >= 675;
-  right = right_value >= 675;
-  left = left_value >= 675;
+  center = center_value >= 600;
+  right = right_value >= 600;
+  left = left_value >= 600;
 
   Serial.print("Left sensor: ");
   Serial.print(left_value);
@@ -335,19 +337,19 @@ unsigned long orientation(unsigned long duration) {
       startPause = millis();
       if (ld<center_range[0]) {                           //too close to wall
         backward(maze_speed);                                       //move a bit back
-        delay(50);
+        delay(75);
         turn_right(maze_speed, maze_speed);                                   //turn out
         delay(50);                                        //turn angle to fix alignment, may change
         stop(5);            //adjustment factor moved
       } else if (ld>center_range[1]) {
         backward(maze_speed);
-        delay(50);
+        delay(75);
         turn_left(maze_speed, maze_speed);
         delay(50);
         stop(5);
       }
       endPause = millis();
-      duration += endPause-startPause+37;                 //extend duration by time taken to readjust and a correction factor
+      duration += endPause-startPause+45;                 //extend duration by time taken to readjust and a correction factor
       Serial.print("Test range ");
       ld = sense_dist();                                  //test if still outside range
     }
@@ -398,19 +400,19 @@ void follow_left() {
         check_end();
       }
       //Readjust
-      /* else if (sense_dist() < stop_dist+20) {
+      else if (sense_dist() < stop_dist+15) {
         front_wall = true;                //there is a wall in front
         while (sense_dist() <= stop_dist-2) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
           backward(maze_speed);
-          delay(25);
+          delay(50);
           stop(5);
         }
         while (sense_dist() > stop_dist) {       //a little back behind the stop distance
           forward(maze_speed);
-          delay(25);
+          delay(50);
           stop(5);
         }
-      } */
+      }
     }
     //Check right wall
     if (!moved) {
@@ -446,13 +448,13 @@ void next_cell(unsigned long duration) {
 
 void rotateL90() {
   turn_left(maze_speed, maze_speed);
-  delay(1150);      //timing to reach 90. 1010, timing might change with power in battery?
+  delay(1050);      //timing to reach 90. 1010, timing might change with power in battery?
   stop(5);
 }
 
 bool rotateR90() {
   turn_right(maze_speed, maze_speed);
-  delay(1150);      //timing to reach 90
+  delay(1050);      //timing to reach 90
   stop(5);
   return true;
 }
@@ -467,10 +469,10 @@ bool rotateR90() {
 void transition() {
   bool entered = false;
   forward(line_speed);
-  delay(100);
+  delay(500);
   stop(5);
   while (!entered) {
-    entered = photosensor(maze_speed);
+    entered = photosensor(line_speed);
   }
   next_cell(duration_enter);
 }
@@ -478,18 +480,17 @@ void transition() {
 void check_end() {
   check_val();                      //check if it has reach the end ramp
   Serial.println();
-  if (recursion == 0) { //Use !left && !center && !right. Currently for testing
+  if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
     end_maze();                     //it has reached the end
   } else {
-    recursion -= 1;
     return;
   }
 }
 
 void end_maze() {
-  //forward(line_speed);
+  forward(line_speed);
   Serial.println("MAZE COMPLETE");
   maze_finished = true;
-  //delay(1000);
+  delay(2000);
   stop(5);
 }
