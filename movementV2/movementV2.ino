@@ -41,9 +41,9 @@ Servo servo;
 float rd = 0;           //right distance
 float ld = 0;           //left distance
 float fd = 0;           //forward distance
-float stop_dist = 5;    //stopping distance
+float stop_dist = 6;    //stopping distance
 float center_range[2] = {11.0,16.5}; //distance from wall
-unsigned long duration_maze = 1250;  //duration to next cell
+unsigned long duration_maze = 1500;  //duration to next cell
 unsigned long duration_enter = 1050; //duration to enter maze
 bool left_wall = true;      //is there a wall to left (assume to be true at first)
 bool front_wall = false;      //is there a wall in front
@@ -277,13 +277,13 @@ void check_error(int speed) {
 //SERVO MOVEMENT
 bool look_fw() {
   servo.write(55);
-  delay(250);     //wait for servo to finish turning
+  delay(500);     //wait for servo to finish turning
   return true;
 }
 
 void look_left() {
   servo.write(168);
-  delay(250);     //wait for servo to finish turning
+  delay(500);     //wait for servo to finish turning
 }
 
 //ULTRASONIC SENSOR
@@ -384,6 +384,21 @@ void follow_left() {
   while (!maze_finished) {
     moved = false;
     //Check left wall first which has already been done while moving to next cell
+    //adjust
+    look_fw();
+    if (sense_dist() < stop_dist+19) {
+      front_wall = true;                //there is a wall in front
+      while (sense_dist() <= stop_dist-1) {    //recenter if too close to wall. -1 for lientiency and so it isnt always readjusting
+        backward(maze_speed);
+        delay(50);
+        stop(5);
+      }
+      while (sense_dist() > stop_dist) {       //a little back behind the stop distance
+        forward(maze_speed);
+        delay(50);
+        stop(5);
+      }
+    }
     look_left();
     if (sense_dist() > 19) {
       Serial.println("No left");
@@ -395,16 +410,16 @@ void follow_left() {
     //Check front wall
     if (!moved) {
       look_fw();
-      if (sense_dist() > stop_dist+20) {
+      if (sense_dist() > stop_dist+19) {
         Serial.println("No front wall");
         front_wall = false;             //no front wall within stop distance + marign for error
         next_cell(duration_maze);
         check_end();
       }
       //Readjust
-      else if (sense_dist() < stop_dist+20) {
+      else if (sense_dist() < stop_dist+19) {
         front_wall = true;                //there is a wall in front
-        while (sense_dist() <= stop_dist-1) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
+        while (sense_dist() <= stop_dist-1) {    //recenter if too close to wall. -1 for lientiency and so it isnt always readjusting
           backward(maze_speed);
           delay(50);
           stop(5);
