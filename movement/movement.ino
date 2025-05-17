@@ -7,7 +7,7 @@
 #define IN2 8  // Left motor
 #define STBY 3 // Standby pin for enabling motor driver
 
-// Speed of the motors (0-255)
+// Speed of the motors (0-255) Adjustable
 int line_speed = 103;
 int maze_speed = 63;
 
@@ -25,8 +25,6 @@ bool center;
 bool right;
 bool left;
 
-bool line=true;
-
 // Servo pins
 #define SRV 10
 
@@ -38,22 +36,22 @@ Servo servo;
 #define trigger 13      //send pulse
 
 // Ultrasonic values
-float rd = 0;           //right distance
-float ld = 0;           //left distance
-float fd = 0;           //forward distance
-float stop_dist = 5;    //stopping distance
-float center_range[2] = {11.0,16.5}; //distance from wall
-unsigned long duration_maze = 1250;  //duration to next cell
-unsigned long duration_enter = 1050; //duration to enter maze
-bool left_wall = true;      //is there a wall to left (assume to be true at first)
-bool front_wall = false;      //is there a wall in front
+float rd = 0;                         //right distance
+float ld = 0;                         //left distance
+float fd = 0;                         //forward distance
+float stop_dist = 5;                  //stopping distance from wall in front
+float center_range[2] = {11.0,16.5};  //acceptable distance from wall
+unsigned long duration_maze = 1250;   //duration to next cell
+unsigned long duration_enter = 1050;  //duration to enter maze
+bool left_wall = true;                //is there a wall to left (assume to be true at first)
+bool front_wall = false;              //is there a wall in front
 
 // Maze stuff
-int position[2] = {4,1};      //position in maze
-int direction = 1;            //direction it is facing; 1-N, 2-W, 3-S, 4/0-E. Mod 4 to get direction
-int recursion = 2;            //how many times to repeat recursion (testing only)
-bool maze_finished = false;        //has the end of the maze been reached
-bool moved = false;
+int position[2] = {4,1};              //position in maze
+int direction = 1;                    //direction it is facing; 1-N, 2-W, 3-S, 4/0-E. Mod 4 to get direction
+int recursion = 2;                    //how many times to repeat recursion (testing only)
+bool maze_finished = false;           //has the end of the maze been reached
+bool moved = false;                   //has it moved into a new cell already
 
 void setup() {
   // Set motor control pins as outputs
@@ -86,18 +84,17 @@ void setup() {
 
 void loop() {
 
-  bool end_line=false;          //end of line tracking condition
+  bool end_line=false;    //end of line tracking condition
   while (!end_line) {
     end_line = photosensor(line_speed);   //start line tracking until condition is met
   }
   Serial.println("LINE DONE");
-  line = false;
   delay(3000);
 
-  transition();
+  transition();     //move into maze
   Serial.println("MAZE START");
 
-  follow_left();
+  follow_left();    //start algorithm
   
   /* look_fw();
   while (true) {
@@ -156,34 +153,34 @@ void turn_right(int motor_speed, int speed2) {
 
 //LINE TRACKING 
 bool photosensor(int speed) {
-  check_val();                            //checks values of photosensors
+  check_val();                              //checks values of photosensors
 
   // Line-following logic
   // Start line tracking if end condition is not met (reaches horizontal black line)
   if (!(left && right)) {
     // When black line is near the center
     if (center) {
-      check_error(speed);                    //checks for errors in how center it is
+      check_error(speed);                   //checks for how center it is and adjusts accordingly
     }
     // Black line completely on left side
     else if (left) {
       Serial.println(" left rotate");
-      turn_left(speed, speed);                    //rotate left to compensate
+      turn_left(speed, speed);              //rotate left to compensate
       delay(35);
       stop(5);
     }
     // Black line completely on right side
     else if (right) {
       Serial.println(" right rotate");
-      turn_right(speed, speed);                   //rotate right to compensate
+      turn_right(speed, speed);             //rotate right to compensate
       delay(35);
       stop(5);
     }
     // Black line nowhere to be found
-    else {                              //enter search mode
+    else {                                  //enter search mode
       Serial.println(" search");
       // Check for black line at each turn interval
-      for (int i=0; i<500; i++) {      //2000 gives a wide enough search radius. Can be reduced
+      for (int i=0; i<500; i++) {           //500 seems to be enough turning to get back to the line
         // Trurn a bit and check sensor values
         turn_left(speed, speed);
         delay(35);
@@ -195,7 +192,7 @@ bool photosensor(int speed) {
           break;
         }
       }
-      // Only check right if nothing was found on the left side
+      // Only turn right if nothing was found on the left side
       // Repeat above steps
       if (!center) {
         for (int i=0; i<1000; i++) {
@@ -219,7 +216,7 @@ bool photosensor(int speed) {
     }
   }
   // End condition where it reaches the horizontal black line
-  // May need to be changed as starting position might have a black line too
+  // May need to be changed as starting position might have a black line too (there was none for my demo)
   else {
     stop(5);
     Serial.println();
@@ -237,6 +234,7 @@ void check_val() {
   center_value = analogRead(CENTER_SENSOR);
   
   // Black line range between 700 and 950. Record if the sensors detect something in that range
+  // The photosensor was also used to detect when it entered the maze. The acrylic base gave a reading >600 so the robot would stop there too
   center = center_value >= 600;
   right = right_value >= 600;
   left = left_value >= 600;
@@ -254,36 +252,39 @@ void check_error(int speed) {
   if (left)
   {
     Serial.println(" left turn");
-    turn_left(speed, 0);                   //slower turn left to compensate
+    turn_left(speed, 0);            //slower turn left to compensate
     delay(25);
     stop(5);
   }
   else if (right)
   {
     Serial.println(" right turn");
-    turn_right(speed, 0);                  //slower turn right to compensate
+    turn_right(speed, 0);           //slower turn right to compensate
     delay(25);
     stop(5);
   }
   else
   {
     Serial.println(" forward");
-    forward(speed);                      //no error go straight ahead
-    delay(60);
+    forward(speed);                 //no error go straight ahead
+    delay(60);                      //timing can be adjusted for presion but it might be jittery
     stop(5);
   }
 }
 
 //SERVO MOVEMENT
+//NOTE: THE SERVOS WE USED COULD NOT GO FULL 180
+//THE SENSORS HAVE BEEN PHYSICALLY ADJUSTED SO LOOK_LEFT IS DIRECTLY PERPENDICULAR TO THE WALL
+//ANGLE VALUES MAY DIFFER
 bool look_fw() {
   servo.write(55);
-  delay(250);     //wait for servo to finish turning
+  delay(250);       //wait for servo to finish turning
   return true;
 }
 
 void look_left() {
   servo.write(168);
-  delay(250);     //wait for servo to finish turning
+  delay(250);       //wait for servo to finish turning
 }
 
 //ULTRASONIC SENSOR
@@ -302,7 +303,7 @@ float sense_dist() {
 
 //MAZE ALGORITHM
 
-/* SUDO CODE
+/* PSUDO CODE
 
 enters cell
   needs to enter going straight
@@ -329,19 +330,19 @@ unsigned long orientation(unsigned long duration) {
   while (ld<center_range[0] || ld>center_range[1]) {    //outside range
     if (ld>center_range[1]+2) {                         //no wall to left in maze
       left_wall = false;                                //dont try to correct
-      duration += 30;
+      duration += 30;                                   //move forward for a bit before trying checking again
       break;
     } else {
       left_wall = true;
       if (ld<center_range[0]) {                           //too close to wall
         startPause = millis();
-        backward(maze_speed);                                       //move a bit back
+        backward(maze_speed);                             //move a bit back
         delay(75);
-        turn_right(maze_speed, maze_speed);                                   //turn out
+        turn_right(maze_speed, maze_speed);               //turn right
         delay(75);                                        //turn angle to fix alignment, may change
         stop(5);
         endPause = millis();
-        duration += (endPause-startPause)+105;                 //extend duration by time taken to readjust and a correction factor
+        duration += (endPause-startPause)+105;            //extend duration by time taken to readjust and a correction factor
       } else if (ld>center_range[1]) {
         startPause = millis();
         backward(maze_speed);
@@ -350,7 +351,7 @@ unsigned long orientation(unsigned long duration) {
         delay(50);
         stop(5);
         endPause = millis();
-        duration += (endPause-startPause)+110;                 //extend duration by time taken to readjust and a correction factor
+        duration += (endPause-startPause)+110;            //extend duration by time taken to readjust and a correction factor
       }
       Serial.print("Test range ");
       ld = sense_dist();                                  //test if still outside range
@@ -360,7 +361,7 @@ unsigned long orientation(unsigned long duration) {
   return duration;
 }
 
-/* SUDO CODE
+/* PSUDO CODE
 
 car moves forward a certain distance to get to cell
   meanwhile it is also checking to make sure it is straight/in line
@@ -383,33 +384,32 @@ once it reaches the "supposed" center of the next cell
 void follow_left() {
   while (!maze_finished) {
     moved = false;
-    //Check left wall first which has already been done while moving to next cell
     look_left();
     if (sense_dist() > 19) {
       Serial.println("No left");
-      rotateL90();              //turn left if there is no left wall
-      direction += 1;           //updating direction
-      next_cell(duration_maze);    //go to next cell
+      rotateL90();                //turn left if there is no left wall
+      direction += 1;             //updating direction
+      next_cell(duration_maze);   //go to next cell
       check_end();
     }
     //Check front wall
-    if (!moved) {
+    if (!moved) {  //NOTE: NEED THIS SO I CAN USE look_fw() BEFORE CHECKING
       look_fw();
       if (sense_dist() > stop_dist+20) {
         Serial.println("No front wall");
-        front_wall = false;             //no front wall within stop distance + marign for error
+        front_wall = false;                     //no front wall within stop distance + marign for error
         next_cell(duration_maze);
         check_end();
       }
-      //Readjust
+      //Readjust to front wall (including while the car is between cells but not if it is clearly in the previous cell)
       else if (sense_dist() < stop_dist+20) {
-        front_wall = true;                //there is a wall in front
-        while (sense_dist() <= stop_dist-1) {    //recenter if too close to wall. -2 for lientiency and so it isnt always readjusting
+        front_wall = true;                      //there is a wall in front
+        while (sense_dist() <= stop_dist-1) {   //recenter if too close to wall. -1 for leniency and so it isnt always readjusting
           backward(maze_speed);
           delay(50);
           stop(5);
         }
-        while (sense_dist() > stop_dist) {       //a little back behind the stop distance
+        while (sense_dist() > stop_dist) {      //too far from stop distance
           forward(maze_speed);
           delay(50);
           stop(5);
@@ -421,7 +421,7 @@ void follow_left() {
       rotateR90(); 
       if (sense_dist() > stop_dist+20) {
         Serial.println("No right wall");
-        front_wall = false;             //no right wall (relative to starting position)
+        front_wall = false;               //no right wall (relative to starting position)
         next_cell(duration_maze);
         check_end();
       }
@@ -439,7 +439,7 @@ void follow_left() {
 // Move into the next cell while staying relatively straight 
 void next_cell(unsigned long duration) {
   Serial.println("next cell");
-  forward(maze_speed);        //move forward
+  forward(maze_speed);                      //move forward
   unsigned long startTime = millis();
   while (millis()-startTime < duration) {
     duration = orientation(duration);       //keep itself straight
@@ -450,13 +450,13 @@ void next_cell(unsigned long duration) {
 
 void rotateL90() {
   turn_left(maze_speed, maze_speed);
-  delay(1050);      //timing to reach 90. 1010, timing might change with power in battery?
+  delay(1050);    //timing to reach 90. 1010, timing might change with power in battery?
   stop(5);
 }
 
 bool rotateR90() {
   turn_right(maze_speed, maze_speed);
-  delay(1050);      //timing to reach 90
+  delay(1050);    //timing to reach 90
   stop(5);
   return true;
 }
@@ -468,11 +468,13 @@ bool rotateR90() {
   enter cell with different duration to center (find that time);
 
 */
+
 void transition() {
   bool entered = false;
   forward(line_speed);
-  delay(500);
+  delay(500);   //ensure that the car has moved past the original black line it stopped at as to not stop again
   stop(5);
+  //Start line tracking again. Stops when it reaches the acrylic base that has a value >600
   while (!entered) {
     entered = photosensor(line_speed);
   }
@@ -480,10 +482,10 @@ void transition() {
 }
 
 void check_end() {
-  check_val();                      //check if it has reach the end ramp
+  check_val();                        //check if it has reach the end ramp
   Serial.println();
-  if (!left && !center && !right) { //Use !left && !center && !right. Currently for testing
-    end_maze();                     //it has reached the end
+  if (!left && !center && !right) {   //reached black line or acrylic base
+    end_maze();                       //it has reached the end
   } else {
     return;
   }
@@ -492,6 +494,7 @@ void check_end() {
 void end_maze() {
   Serial.println("MAZE COMPLETE");
   maze_finished = true;
+  //Maze exit ramp
   while (left_wall) {
     forward(line_speed);
     orientation(10);
