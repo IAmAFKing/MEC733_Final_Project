@@ -384,6 +384,22 @@ once it reaches the "supposed" center of the next cell
 void follow_left() {
   while (!maze_finished) {
     moved = false;
+    //Check front wall first to readjust
+    look_fw();
+    if (sense_dist() < stop_dist+20) {
+      front_wall = true;                      //there is a wall in front
+      while (sense_dist() <= stop_dist-1) {   //recenter if too close to wall. -1 for leniency and so it isnt always readjusting
+        backward(maze_speed);
+        delay(50);
+        stop(5);
+      }
+      while (sense_dist() > stop_dist) {      //too far from stop distance
+        forward(maze_speed);
+        delay(50);
+        stop(5);
+      }
+    }
+    //Check for left wall
     look_left();
     if (sense_dist() > 19) {
       Serial.println("No left");
@@ -392,7 +408,7 @@ void follow_left() {
       next_cell(duration_maze);   //go to next cell
       check_end();
     }
-    //Check front wall
+    //Check for front wall
     if (!moved) {  //NOTE: NEED THIS SO I CAN USE look_fw() BEFORE CHECKING
       look_fw();
       if (sense_dist() > stop_dist+20) {
@@ -400,20 +416,6 @@ void follow_left() {
         front_wall = false;                     //no front wall within stop distance + marign for error
         next_cell(duration_maze);
         check_end();
-      }
-      //Readjust to front wall (including while the car is between cells but not if it is clearly in the previous cell)
-      else if (sense_dist() < stop_dist+20) {
-        front_wall = true;                      //there is a wall in front
-        while (sense_dist() <= stop_dist-1) {   //recenter if too close to wall. -1 for leniency and so it isnt always readjusting
-          backward(maze_speed);
-          delay(50);
-          stop(5);
-        }
-        while (sense_dist() > stop_dist) {      //too far from stop distance
-          forward(maze_speed);
-          delay(50);
-          stop(5);
-        }
       }
     }
     //Check right wall
